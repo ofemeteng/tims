@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sortir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green: #1a7c3e;
+      --green-light: #23a555;
+      --red: #d42b2b;
+      --black: #0d0d0d;
+      --off-black: #151515;
+      --white: #f9f9f6;
+      --gray: #2a2a2a;
+      --muted: #888;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 5%;
+      background: rgba(13,13,13,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .logo-wrap {
+      display: flex; align-items: center; gap: 0.6rem;
+      text-decoration: none;
+    }
+    .logo-img-box {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px dashed rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+      transition: border-color 0.2s;
+      cursor: pointer; position: relative;
+    }
+    .logo-img-box:hover { border-color: rgba(255,255,255,0.5); }
+    .logo-img-box img {
+      width: 100%; height: 100%; object-fit: contain; display: none;
+    }
+    .logo-img-box .logo-placeholder {
+      font-size: 0.6rem; color: rgba(255,255,255,0.35);
+      text-align: center; line-height: 1.3;
+      pointer-events: none; user-select: none;
+    }
+    .logo-img-box input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .logo {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.5rem; font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--white);
+    }
+    .logo span { color: var(--red); }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none; color: rgba(255,255,255,0.6);
+      font-size: 0.875rem; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--white); border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-nav {
+      display: none; flex-direction: column;
+      position: fixed; top: 58px; left: 0; right: 0;
+      background: rgba(13,13,13,0.97);
+      backdrop-filter: blur(20px);
+      padding: 1.5rem 5% 2rem;
+      z-index: 99; border-bottom: 1px solid rgba(255,255,255,0.08);
+      gap: 1.2rem;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      text-decoration: none; color: rgba(255,255,255,0.75);
+      font-size: 1.1rem; font-weight: 500;
+    }
+    .mobile-nav .mobile-cta {
+      background: var(--green); color: #fff;
+      padding: 0.8rem 1.5rem; border-radius: 50px;
+      font-weight: 600; text-align: center; margin-top: 0.5rem;
+      display: block;
+    }
+
+    .nav-cta {
+      background: var(--green); color: #fff;
+      padding: 0.55rem 1.3rem; border-radius: 50px;
+      font-size: 0.85rem; font-weight: 600;
+      text-decoration: none; transition: background 0.2s, transform 0.2s;
+      white-space: nowrap;
+    }
+    .nav-cta:hover { background: var(--green-light); transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 7rem 5% 4rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 70% 40%, rgba(212,43,43,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 50% at 20% 70%, rgba(26,124,62,0.14) 0%, transparent 70%);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 50px; padding: 0.4rem 1rem;
+      font-size: 0.76rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 1.6rem;
+      animation: fadeUp 0.7s ease both;
+    }
+    .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-light); flex-shrink: 0; }
+
+    .hero h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(2.5rem, 9vw, 6.5rem);
+      font-weight: 800; line-height: 1.05;
+      letter-spacing: -1.5px;
+      max-width: 860px;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+    .hero h1 .accent { color: var(--red); }
+    .hero h1 .accent-g { color: var(--green-light); }
+
+    .hero p {
+      margin-top: 1.2rem;
+      font-size: clamp(0.92rem, 2.5vw, 1.05rem);
+      color: rgba(255,255,255,0.52);
+      max-width: 440px; line-height: 1.75;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    .hero-actions {
+      margin-top: 2.2rem;
+      display: flex; gap: 0.9rem; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+    .btn-whatsapp {
+      display: inline-flex; align-items: center; gap: 0.65rem;
+      background: var(--green); color: #fff;
+      padding: 0.9rem 1.8rem; border-radius: 50px;
+      font-size: 0.95rem; font-weight: 600; text-decoration: none;
+      box-shadow: 0 4px 30px rgba(26,124,62,0.4);
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-whatsapp:hover { background: var(--green-light); transform: translateY(-3px); box-shadow: 0 8px 40px rgba(26,124,62,0.55); }
+    .btn-whatsapp svg { width: 20px; height: 20px; fill: #fff; flex-shrink: 0; }
+
+    .btn-menu {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      border: 1.5px solid rgba(255,255,255,0.2); color: var(--white);
+      padding: 0.9rem 1.8rem; border-radius: 50px;
+      font-size: 0.95rem; font-weight: 500; text-decoration: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-menu:hover { border-color: var(--white); background: rgba(255,255,255,0.06); }
+
+    .hero-stats {
+      margin-top: 3.5rem;
+      display: flex; gap: 2.5rem; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 0.7s 0.4s ease both;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: 'Sora', sans-serif;
+      font-size: 2rem; font-weight: 800; color: var(--white); line-height: 1;
+    }
+    .stat-num span { color: var(--red); }
+    .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+
+    /* ── TICKER ── */
+    .strip { background: var(--red); overflow: hidden; white-space: nowrap; padding: 0.75rem 0; }
+    .strip-inner {
+      display: inline-flex; gap: 2.5rem;
+      animation: scroll-left 18s linear infinite;
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.9);
+    }
+    .strip-inner span::before { content: "✦ "; }
+    @keyframes scroll-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── ABOUT ── */
+    .about-section { padding: 5.5rem 5%; max-width: 1200px; margin: auto; }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    .about-tag {
+      font-family: 'Sora', sans-serif;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--green-light); margin-bottom: 0.9rem;
+    }
+    .about-grid h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800; line-height: 1.2; margin-bottom: 1.1rem;
+    }
+    .about-text { color: rgba(255,255,255,0.52); line-height: 1.8; font-size: 0.93rem; }
+    .about-features { margin-top: 1.8rem; display: flex; flex-direction: column; gap: 0.9rem; }
+    .feat { display: flex; align-items: center; gap: 0.75rem; font-size: 0.88rem; color: rgba(255,255,255,0.72); }
+    .feat-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: rgba(26,124,62,0.15); border: 1px solid rgba(26,124,62,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; flex-shrink: 0;
+    }
+
+    /* ── MEAL REEL ── */
+    .reel-wrap {
+      position: relative; border-radius: 24px; overflow: hidden;
+      aspect-ratio: 4/5; background: var(--gray);
+      cursor: pointer;
+    }
+    .reel-slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.9s ease;
+    }
+    .reel-slide.active { opacity: 1; }
+
+    .reel-slide:nth-child(1) { background: linear-gradient(145deg, #1c3d22 0%, #0e1f11 100%); }
+    .reel-slide:nth-child(2) { background: linear-gradient(145deg, #3d1212 0%, #200909 100%); }
+    .reel-slide:nth-child(3) { background: linear-gradient(145deg, #2d2010 0%, #1c1308 100%); }
+    .reel-slide:nth-child(4) { background: linear-gradient(145deg, #12203d 0%, #091020 100%); }
+    .reel-slide:nth-child(5) { background: linear-gradient(145deg, #2d1535 0%, #1a0b20 100%); }
+
+    .reel-emoji {
+      font-size: clamp(4.5rem, 12vw, 7rem);
+      filter: drop-shadow(0 10px 28px rgba(0,0,0,0.5));
+      margin-bottom: 1.2rem;
+      animation: reelFloat 3s ease-in-out infinite;
+    }
+    @keyframes reelFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+    .reel-label {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+      font-weight: 700; color: rgba(255,255,255,0.95);
+    }
+    .reel-sub { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 0.3rem; }
+
+    .reel-dots {
+      position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px; z-index: 2;
+    }
+    .reel-dot {
+      width: 6px; height: 6px; border-radius: 3px;
+      background: rgba(255,255,255,0.3); transition: background 0.3s, width 0.3s;
+      cursor: pointer;
+    }
+    .reel-dot.active { background: var(--green-light); width: 18px; }
+
+    .reel-badge {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--red); color: #fff; border-radius: 10px;
+      padding: 0.4rem 0.8rem; font-size: 0.73rem; font-weight: 700;
+      font-family: 'Sora', sans-serif; z-index: 2;
+    }
+
+    /* Progress bar at top of reel */
+    .reel-progress {
+      position: absolute; top: 0; left: 0; height: 3px;
+      background: var(--green-light); z-index: 3;
+      width: 0%; transition: width 2.5s linear;
+    }
+
+    /* ── MENU ── */
+    .menu-section { padding: 5rem 5%; background: rgba(255,255,255,0.02); }
+    .section-header { text-align: center; margin-bottom: 2.5rem; }
+    .section-tag {
+      font-family: 'Sora', sans-serif;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--red); display: block; margin-bottom: 0.5rem;
+    }
+    .section-header h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 800;
+    }
+    .menu-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.2rem; max-width: 1200px; margin: auto;
+    }
+    .menu-card {
+      background: var(--off-black); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 18px; padding: 1.4rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .menu-card:hover { border-color: rgba(26,124,62,0.4); transform: translateY(-4px); }
+    .menu-emoji { font-size: 2.6rem; margin-bottom: 0.8rem; display: block; }
+    .menu-card h3 { font-family: 'Sora', sans-serif; font-size: 0.97rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .menu-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem; }
+    .menu-price { font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--green-light); }
+    .menu-badge {
+      display: inline-block; background: rgba(212,43,43,0.15);
+      border: 1px solid rgba(212,43,43,0.3); color: var(--red);
+      border-radius: 50px; padding: 0.12rem 0.65rem;
+      font-size: 0.67rem; font-weight: 700; margin-left: 0.4rem;
+    }
+
+    /* ── ORDER CTA ── */
+    .order-section { padding: 5.5rem 5%; text-align: center; position: relative; overflow: hidden; }
+    .order-glow {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(26,124,62,0.1) 0%, transparent 70%);
+    }
+    .order-section h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(1.8rem, 5vw, 3.5rem); font-weight: 800;
+      line-height: 1.12; max-width: 650px; margin: 0 auto 1.2rem;
+      position: relative;
+    }
+    .order-section > p {
+      color: rgba(255,255,255,0.5); font-size: 0.95rem;
+      max-width: 400px; margin: 0 auto 2.2rem; position: relative;
+    }
+    .btn-whatsapp-lg {
+      display: inline-flex; align-items: center; gap: 0.8rem;
+      background: var(--green); color: #fff;
+      padding: 1.1rem 2.2rem; border-radius: 50px;
+      font-size: 1rem; font-weight: 700; text-decoration: none;
+      box-shadow: 0 4px 40px rgba(26,124,62,0.45);
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .btn-whatsapp-lg:hover { background: var(--green-light); transform: translateY(-3px); box-shadow: 0 10px 50px rgba(26,124,62,0.6); }
+    .btn-whatsapp-lg svg { width: 24px; height: 24px; fill: #fff; flex-shrink: 0; }
+    .order-note { margin-top: 1rem; font-size: 0.8rem; color: var(--muted); position: relative; }
+
+    /* ── FOOTER ── */
+    footer { background: var(--off-black); border-top: 1px solid rgba(255,255,255,0.07); padding: 4rem 5% 2rem; }
+    .footer-top { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 3rem; max-width: 1200px; margin: 0 auto 2.5rem; }
+    .footer-brand .logo { font-size: 1.6rem; display: block; margin-bottom: 0.8rem; }
+    .footer-brand p { font-size: 0.86rem; color: var(--muted); line-height: 1.75; max-width: 260px; }
+    .hours-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(26,124,62,0.12); border: 1px solid rgba(26,124,62,0.25);
+      border-radius: 50px; padding: 0.35rem 0.9rem;
+      font-size: 0.76rem; color: var(--green-light); font-weight: 600; margin-top: 1rem;
+    }
+    .green-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-light); flex-shrink: 0; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .footer-col h4 {
+      font-family: 'Sora', sans-serif;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.35); margin-bottom: 1.1rem;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+    .footer-col ul li { font-size: 0.87rem; color: rgba(255,255,255,0.62); }
+    .contact-item { display: flex; align-items: flex-start; gap: 0.6rem; }
+    .contact-icon { font-size: 0.95rem; flex-shrink: 0; margin-top: 1px; }
+    .footer-bottom {
+      max-width: 1200px; margin: auto; padding-top: 1.8rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.78rem; color: var(--muted); flex-wrap: wrap; gap: 0.8rem;
+    }
+
+    .footer-brand-logo { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.8rem; }
+    .logo-img-box-sm {
+      width: 36px; height: 36px; border-radius: 8px;
+      overflow: hidden; flex-shrink: 0;
+      background: rgba(255,255,255,0.06);
+    }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .reel-wrap { order: -1; aspect-ratio: 16/10; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .footer-brand { grid-column: 1 / -1; }
+      .footer-brand p { max-width: 100%; }
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 0.9rem 5%; }
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+
+      .hero { padding: 6rem 5% 3rem; }
+      .hero h1 { letter-spacing: -0.5px; }
+      .hero-stats { gap: 1.5rem; }
+      .stat-num { font-size: 1.6rem; }
+
+      .about-section { padding: 3.5rem 5%; }
+      .reel-wrap { aspect-ratio: 4/3; border-radius: 18px; }
+      .reel-emoji { font-size: 4rem; }
+
+      .menu-section { padding: 3.5rem 5%; }
+      .menu-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+      .menu-card { padding: 1rem; }
+      .menu-emoji { font-size: 2rem; }
+
+      .order-section { padding: 4rem 5%; }
+      .btn-whatsapp-lg { width: 100%; max-width: 320px; justify-content: center; }
+
+      .footer-top { grid-template-columns: 1fr; gap: 2rem; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+
+      .hero-actions { flex-direction: column; align-items: center; }
+      .btn-whatsapp, .btn-menu { width: 100%; max-width: 300px; justify-content: center; }
+    }
+
+    @media (max-width: 380px) {
+      .menu-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo-wrap">
+    <!-- <div class="logo-img-box" id="logoBox" title="Click to upload your logo">
+      <span class="logo-placeholder">Your<br>Logo</span>
+      <img id="logoImg" src="" alt="Logo"/>
+      <input type="file" accept="image/*" id="logoUpload" aria-label="Upload logo"/>
+    </div> -->
+    <div class="logo">Sortir<span>NG</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#order">Order</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="https://wa.me/2349166434201?text=Hello!%20I'd%20like%20to%20place%20an%20order." class="nav-cta" target="_blank">Order Now</a>
+  <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE NAV DRAWER -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#about" onclick="closeMobileNav()">About</a>
+  <a href="#menu" onclick="closeMobileNav()">Menu</a>
+  <a href="#order" onclick="closeMobileNav()">Order</a>
+  <a href="#contact" onclick="closeMobileNav()">Contact</a>
+  <a href="https://wa.me/2349166434201?text=Hello!%20I'd%20like%20to%20place%20an%20order." class="mobile-cta" target="_blank">Order on WhatsApp</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-badge"><span class="badge-dot"></span> Now Accepting Orders via WhatsApp</div>
+  <h1>Bold <span class="accent">Flavours,</span><br><span class="accent-g">Nigerian</span> Soul</h1>
+  <p>Fresh, fast, and packed with the flavours you grew up loving. Quality you can taste, service you remember.</p>
+  <div class="hero-actions">
+    <a href="https://wa.me/2349166434201?text=Hello!%20I'd%20like%20to%20place%20an%20order." class="btn-whatsapp" target="_blank">
+      <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Order on WhatsApp
+    </a>
+    <a href="#menu" class="btn-menu">Browse Menu →</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">500<span>+</span></div><div class="stat-label">Orders Daily</div></div>
+    <div class="stat"><div class="stat-num">4.9<span>★</span></div><div class="stat-label">Customer Rating</div></div>
+    <div class="stat"><div class="stat-num">30<span>min</span></div><div class="stat-label">Avg. Delivery</div></div>
+  </div>
+</section>
+
+<!-- TICKER STRIP -->
+<div class="strip">
+  <div class="strip-inner">
+    <span>Jollof Rice</span><span>Grilled Chicken</span><span>Peppered Snail</span><span>Suya & Fries</span>
+    <span>Pounded Yam</span><span>Egusi Soup</span><span>Pepper Soup</span><span>Fried Plantain</span>
+    <span>Jollof Rice</span><span>Grilled Chicken</span><span>Peppered Snail</span><span>Suya & Fries</span>
+    <span>Pounded Yam</span><span>Egusi Soup</span><span>Pepper Soup</span><span>Fried Plantain</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="about-section" id="about">
+  <div class="about-grid">
+
+    <!-- Text -->
+    <div>
+      <div class="about-tag">Our Story</div>
+      <h2>Rooted in Naija,<br>Built for Everyone</h2>
+      <p class="about-text">From a small kitchen in Port Harcourt, Sortir has grown into your go-to spot for authentic Nigerian flavours and crave-worthy fast food. Every dish is made fresh, with love and the right amount of pepper.</p>
+      <div class="about-features">
+        <div class="feat"><div class="feat-icon">🌿</div>Fresh local ingredients, sourced daily</div>
+        <div class="feat"><div class="feat-icon">⚡</div>Dine-in and fast deliveries</div>
+        <div class="feat"><div class="feat-icon">🤌</div>Authentic recipes, never compromise</div>
+      </div>
+    </div>
+
+    <!-- Meal Reel Slideshow -->
+    <div class="reel-wrap" id="reel">
+      <div class="reel-progress" id="reelProgress"></div>
+
+      <div class="reel-slide active">
+        <div class="reel-emoji">🍛</div>
+        <div class="reel-label">Party Jollof Rice</div>
+        <div class="reel-sub">Smoky firewood flavour</div>
+      </div>
+      <div class="reel-slide">
+        <div class="reel-emoji">🍗</div>
+        <div class="reel-label">Peppered Chicken</div>
+        <div class="reel-sub">Grilled to perfection</div>
+      </div>
+      <div class="reel-slide">
+        <div class="reel-emoji">🥩</div>
+        <div class="reel-label">Suya Skewers</div>
+        <div class="reel-sub">Northern spice blend</div>
+      </div>
+      <div class="reel-slide">
+        <div class="reel-emoji">🍜</div>
+        <div class="reel-label">Egusi Soup</div>
+        <div class="reel-sub">Rich, hearty & homestyle</div>
+      </div>
+      <div class="reel-slide">
+        <div class="reel-emoji">🍔</div>
+        <div class="reel-label">Naija Smash Burger</div>
+        <div class="reel-sub">With fried plantain inside</div>
+      </div>
+
+      <div class="reel-badge">🔥 Fan Faves</div>
+
+      <div class="reel-dots" id="reelDots">
+        <div class="reel-dot active" data-index="0"></div>
+        <div class="reel-dot" data-index="1"></div>
+        <div class="reel-dot" data-index="2"></div>
+        <div class="reel-dot" data-index="3"></div>
+        <div class="reel-dot" data-index="4"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MENU -->
+<section class="menu-section" id="menu">
+  <div class="section-header">
+    <span class="section-tag">What We Serve</span>
+    <h2>Our Most-Loved Dishes</h2>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-card">
+      <span class="menu-emoji">🍛</span>
+      <h3>Party Jollof Rice <span class="menu-badge">Best Seller</span></h3>
+      <p>Smoky, slow-cooked over firewood, served with your choice of protein and salad.</p>
+      <div class="menu-price">From ₦2,500</div>
+    </div>
+    <div class="menu-card">
+      <span class="menu-emoji">🍗</span>
+      <h3>Peppered Chicken Platter</h3>
+      <p>Marinated whole chicken grilled and tossed in our signature pepper sauce.</p>
+      <div class="menu-price">From ₦4,000</div>
+    </div>
+    <div class="menu-card">
+      <span class="menu-emoji">🥩</span>
+      <h3>Suya Skewers <span class="menu-badge">🔥 Spicy</span></h3>
+      <p>Northern-style spiced beef suya skewers, served with sliced onions and tomatoes.</p>
+      <div class="menu-price">From ₦1,800</div>
+    </div>
+    <div class="menu-card">
+      <span class="menu-emoji">🍔</span>
+      <h3>Naija Smash Burger</h3>
+      <p>Double smash patty with plantain, peppered egg, and our special sauce on brioche.</p>
+      <div class="menu-price">From ₦3,200</div>
+    </div>
+    <div class="menu-card">
+      <span class="menu-emoji">🍜</span>
+      <h3>Egusi Soup &amp; Swallow</h3>
+      <p>Rich, nutty egusi cooked with assorted meat and stockfish. Choose pounded yam or eba.</p>
+      <div class="menu-price">From ₦3,500</div>
+    </div>
+    <div class="menu-card">
+      <span class="menu-emoji">🍟</span>
+      <h3>Plantain &amp; Fries Combo</h3>
+      <p>Crispy fried sweet plantain paired with seasoned potato fries and spicy dipping sauce.</p>
+      <div class="menu-price">From ₦1,200</div>
+    </div>
+  </div>
+</section>
+
+<!-- ORDER CTA -->
+<section class="order-section" id="order">
+  <div class="order-glow"></div>
+  <h2>Ready to Eat?<br>We're One Message Away.</h2>
+  <p>Skip the queue. Message us on WhatsApp and get your order delivered fast — no app needed.</p>
+  <a href="https://wa.me/2349166434201?text=Hello!%20I'd%20like%20to%20place%20an%20order%20from%20Sortir." class="btn-whatsapp-lg" target="_blank">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Chat Us on WhatsApp
+  </a>
+  <p class="order-note">📍 Available for dine-in, takeaway & delivery · Mon–Sun 8AM – 9PM</p>
+</section>
+
+<!-- FOOTER / CONTACT -->
+<footer id="contact">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-brand-logo">
+        <!-- <div class="logo-img-box-sm" id="footerLogoBox">
+          <img id="footerLogoImg" src="" alt="Logo" style="width:100%;height:100%;object-fit:contain;display:none;border-radius:8px;"/>
+          <span class="logo-placeholder-sm" id="footerLogoPlaceholder"></span>
+        </div> -->
+        <span class="logo">Sortir<span>NG</span></span>
+      </div>
+      <p>Serving bold, authentic Nigerian cuisine and fast food in the heart of Port Harcourt. Fresh daily. Zero compromise.</p>
+      <div><span class="hours-badge"><span class="green-dot"></span> Open Now · Closes 9PM</span></div>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#about" style="color:inherit;text-decoration:none;">About Us</a></li>
+        <li><a href="#menu" style="color:inherit;text-decoration:none;">Our Menu</a></li>
+        <li><a href="#order" style="color:inherit;text-decoration:none;">Place an Order</a></li>
+        <li><a href="#contact" style="color:inherit;text-decoration:none;">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact Us</h4>
+      <ul>
+        <li class="contact-item"><span class="contact-icon">📍</span>Amanda Malls Plaza, Elelenwo Road, Port Harcourt, Rivers State, Nigeria</li>
+        <li class="contact-item"><span class="contact-icon">📞</span>+234 916 643 4201</li>
+        <li class="contact-item"><span class="contact-icon">📧</span>contact@sortirng.com</li>
+        <li class="contact-item"><span class="contact-icon">🕘</span>Mon – Sun: 8:00 AM – 9:00 PM</li>
+        <li class="contact-item">
+          <span class="contact-icon">💬</span>
+          <a href="https://wa.me/2349166434201" target="_blank" style="color:var(--green-light);text-decoration:none;font-weight:600;">WhatsApp Orders</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Sortir. All rights reserved.</span>
+    <span>Made with ❤️ in Port Harcourt, Nigeria 🇳🇬</span>
+  </div>
+</footer>
+
+<script>
+  // ── HAMBURGER ──
+  const hamburger = document.getElementById('hamburger');
+  const mobileNav = document.getElementById('mobileNav');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileNav.classList.toggle('open');
+  });
+  function closeMobileNav() {
+    hamburger.classList.remove('open');
+    mobileNav.classList.remove('open');
+  }
+
+  // ── MEAL REEL ──
+  const slides = document.querySelectorAll('.reel-slide');
+  const dots = document.querySelectorAll('.reel-dot');
+  const progressBar = document.getElementById('reelProgress');
+  let current = 0;
+  let timer = null;
+
+  function goToSlide(index) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (index + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    // Reset & animate progress bar
+    progressBar.style.transition = 'none';
+    progressBar.style.width = '0%';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        progressBar.style.transition = 'width 2.5s linear';
+        progressBar.style.width = '100%';
+      });
+    });
+  }
+
+  function startReel() {
+    // Kick off first progress bar
+    progressBar.style.transition = 'width 2.5s linear';
+    progressBar.style.width = '100%';
+    timer = setInterval(() => goToSlide(current + 1), 2500);
+  }
+
+  // Dot clicks
+  dots.forEach((dot, i) => {
+    dot.addEventListener('click', () => {
+      clearInterval(timer);
+      goToSlide(i);
+      timer = setInterval(() => goToSlide(current + 1), 2500);
+    });
+  });
+
+  // ── LOGO UPLOAD ──
+  const logoUpload = document.getElementById('logoUpload');
+  const logoImg = document.getElementById('logoImg');
+  const logoPlaceholder = document.querySelector('.logo-placeholder');
+  const footerLogoImg = document.getElementById('footerLogoImg');
+  const footerLogoPlaceholder = document.getElementById('footerLogoPlaceholder');
+
+  logoUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    // Nav logo
+    logoImg.src = url;
+    logoImg.style.display = 'block';
+    logoPlaceholder.style.display = 'none';
+    // Footer logo
+    footerLogoImg.src = url;
+    footerLogoImg.style.display = 'block';
+    if (footerLogoPlaceholder) footerLogoPlaceholder.style.display = 'none';
+  });
+
+  startReel();
+</script>
+</body>
+</html>
