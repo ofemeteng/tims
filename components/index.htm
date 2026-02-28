@@ -1,746 +1,2006 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sortir</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIMS — Tertiary Institution Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0B1D3A;
+  --navy-mid: #112347;
+  --blue: #1A56DB;
+  --blue-light: #3B82F6;
+  --cyan: #06B6D4;
+  --green: #10B981;
+  --green-dark: #059669;
+  --amber: #F59E0B;
+  --red: #EF4444;
+  --purple: #8B5CF6;
+  --slate: #64748B;
+  --bg: #F0F4F8;
+  --surface: #FFFFFF;
+  --border: #E2E8F0;
+  --text: #0F172A;
+  --text-2: #475569;
+  --sidebar-w: 240px;
+}
 
-    :root {
-      --green: #1a7c3e;
-      --green-light: #23a555;
-      --red: #d42b2b;
-      --black: #0d0d0d;
-      --off-black: #151515;
-      --white: #f9f9f6;
-      --gray: #2a2a2a;
-      --muted: #888;
-    }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); overflow:hidden; }
 
-    html { scroll-behavior: smooth; }
+/* ── LOGIN ── */
+#login-screen {
+  position:fixed; inset:0; z-index:1000;
+  background: linear-gradient(135deg, #0B1D3A 0%, #112347 50%, #0E2150 100%);
+  display:flex; align-items:center; justify-content:center;
+  transition: opacity 0.5s, transform 0.5s;
+}
+#login-screen.hidden { opacity:0; pointer-events:none; transform:scale(1.05); }
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--black);
-      color: var(--white);
-      overflow-x: hidden;
-    }
+.login-bg-pattern {
+  position:absolute; inset:0; overflow:hidden; opacity:0.06;
+  background-image: repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%);
+  background-size: 20px 20px;
+}
+.login-card {
+  position:relative; width:420px; padding:48px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:20px;
+  backdrop-filter:blur(20px);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.4);
+  animation: slideUp 0.6s ease;
+}
+@keyframes slideUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:none; } }
 
-    /* ── NAV ── */
-    nav {
-      position: fixed; top: 0; width: 100%; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1rem 5%;
-      background: rgba(13,13,13,0.92);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-    .logo-wrap {
-      display: flex; align-items: center; gap: 0.6rem;
-      text-decoration: none;
-    }
-    .logo-img-box {
-      width: 40px; height: 40px; border-radius: 10px;
-      background: rgba(255,255,255,0.08);
-      border: 1.5px dashed rgba(255,255,255,0.25);
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; flex-shrink: 0;
-      transition: border-color 0.2s;
-      cursor: pointer; position: relative;
-    }
-    .logo-img-box:hover { border-color: rgba(255,255,255,0.5); }
-    .logo-img-box img {
-      width: 100%; height: 100%; object-fit: contain; display: none;
-    }
-    .logo-img-box .logo-placeholder {
-      font-size: 0.6rem; color: rgba(255,255,255,0.35);
-      text-align: center; line-height: 1.3;
-      pointer-events: none; user-select: none;
-    }
-    .logo-img-box input[type="file"] {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-    }
-    .logo {
-      font-family: 'Sora', sans-serif;
-      font-size: 1.5rem; font-weight: 800;
-      letter-spacing: -0.5px;
-      color: var(--white);
-    }
-    .logo span { color: var(--red); }
+.login-logo { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+.login-logo-mark {
+  width:44px; height:44px; border-radius:10px;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  display:flex; align-items:center; justify-content:center;
+  font-family:'DM Serif Display'; font-size:22px; color:#fff;
+}
+.login-logo-text { font-size:26px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
+.login-logo-sub { font-size:11px; color:rgba(255,255,255,0.5); letter-spacing:2px; text-transform:uppercase; margin-bottom:32px; }
+.inst-badge {
+  background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.3);
+  border-radius:8px; padding:10px 14px; margin-bottom:28px;
+  font-size:13px; color:#67E8F9;
+}
+.inst-badge strong { display:block; font-size:14px; color:#A5F3FC; }
+.login-role-tabs { display:flex; gap:8px; margin-bottom:24px; }
+.role-tab {
+  flex:1; padding:8px; border:1px solid rgba(255,255,255,0.15);
+  border-radius:8px; background:transparent; color:rgba(255,255,255,0.5);
+  font-family:'Outfit'; font-size:12px; font-weight:500; cursor:pointer;
+  transition:all 0.2s;
+}
+.role-tab.active { background:rgba(26,86,219,0.4); border-color:var(--blue-light); color:#fff; }
+.login-field { margin-bottom:16px; }
+.login-field label { display:block; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:6px; font-weight:500; letter-spacing:0.5px; text-transform:uppercase; }
+.login-field input {
+  width:100%; padding:12px 16px; border-radius:10px;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+  color:#fff; font-family:'Outfit'; font-size:14px; outline:none;
+  transition:border-color 0.2s;
+}
+.login-field input:focus { border-color:var(--blue-light); }
+.login-btn {
+  width:100%; padding:14px; margin-top:8px; border:none; border-radius:10px;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  color:#fff; font-family:'Outfit'; font-size:15px; font-weight:700;
+  cursor:pointer; transition:opacity 0.2s, transform 0.1s;
+  letter-spacing:0.3px;
+}
+.login-btn:hover { opacity:0.9; }
+.login-btn:active { transform:scale(0.98); }
+.login-hint { text-align:center; margin-top:16px; font-size:12px; color:rgba(255,255,255,0.35); }
 
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
-    .nav-links a {
-      text-decoration: none; color: rgba(255,255,255,0.6);
-      font-size: 0.875rem; font-weight: 500;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--white); }
+/* ── APP SHELL ── */
+#app { display:flex; height:100vh; }
 
-    .hamburger {
-      display: none; flex-direction: column; gap: 5px;
-      background: none; border: none; cursor: pointer; padding: 4px;
-    }
-    .hamburger span {
-      display: block; width: 24px; height: 2px;
-      background: var(--white); border-radius: 2px;
-      transition: transform 0.3s, opacity 0.3s;
-    }
-    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .hamburger.open span:nth-child(2) { opacity: 0; }
-    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+/* ── SIDEBAR ── */
+.sidebar {
+  width:var(--sidebar-w); background:var(--navy);
+  display:flex; flex-direction:column;
+  flex-shrink:0; overflow:hidden;
+}
+.sidebar-logo {
+  padding:20px 20px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.logo-row { display:flex; align-items:center; gap:10px; }
+.logo-mark {
+  width:34px; height:34px; border-radius:8px;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  display:flex; align-items:center; justify-content:center;
+  font-family:'DM Serif Display'; font-size:17px; color:#fff;
+}
+.logo-name { font-size:20px; font-weight:800; color:#fff; letter-spacing:-0.3px; }
+.inst-name {
+  margin-top:8px; font-size:10.5px; color:rgba(255,255,255,0.4);
+  letter-spacing:0.3px; line-height:1.4;
+}
 
-    .mobile-nav {
-      display: none; flex-direction: column;
-      position: fixed; top: 58px; left: 0; right: 0;
-      background: rgba(13,13,13,0.97);
-      backdrop-filter: blur(20px);
-      padding: 1.5rem 5% 2rem;
-      z-index: 99; border-bottom: 1px solid rgba(255,255,255,0.08);
-      gap: 1.2rem;
-    }
-    .mobile-nav.open { display: flex; }
-    .mobile-nav a {
-      text-decoration: none; color: rgba(255,255,255,0.75);
-      font-size: 1.1rem; font-weight: 500;
-    }
-    .mobile-nav .mobile-cta {
-      background: var(--green); color: #fff;
-      padding: 0.8rem 1.5rem; border-radius: 50px;
-      font-weight: 600; text-align: center; margin-top: 0.5rem;
-      display: block;
-    }
+.sidebar-nav { flex:1; padding:12px 10px; overflow-y:auto; }
+.nav-section { margin-bottom:20px; }
+.nav-section-label {
+  font-size:9.5px; font-weight:700; letter-spacing:1.5px;
+  text-transform:uppercase; color:rgba(255,255,255,0.25);
+  padding:0 10px; margin-bottom:4px;
+}
+.nav-item {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:8px; cursor:pointer;
+  color:rgba(255,255,255,0.55); font-size:13px; font-weight:500;
+  transition:all 0.15s; margin-bottom:1px; position:relative;
+}
+.nav-item:hover { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.85); }
+.nav-item.active { background:rgba(26,86,219,0.35); color:#fff; }
+.nav-item.active::before {
+  content:''; position:absolute; left:0; top:50%; transform:translateY(-50%);
+  width:3px; height:20px; background:var(--blue-light); border-radius:0 2px 2px 0;
+}
+.nav-icon { width:18px; text-align:center; font-size:15px; }
+.nav-badge {
+  margin-left:auto; background:var(--blue); color:#fff;
+  font-size:10px; font-weight:700; padding:1px 6px; border-radius:10px;
+}
 
-    .nav-cta {
-      background: var(--green); color: #fff;
-      padding: 0.55rem 1.3rem; border-radius: 50px;
-      font-size: 0.85rem; font-weight: 600;
-      text-decoration: none; transition: background 0.2s, transform 0.2s;
-      white-space: nowrap;
-    }
-    .nav-cta:hover { background: var(--green-light); transform: translateY(-1px); }
+.sidebar-user {
+  padding:14px 16px; border-top:1px solid rgba(255,255,255,0.06);
+  display:flex; align-items:center; gap:10px;
+}
+.user-avatar {
+  width:34px; height:34px; border-radius:8px;
+  background:linear-gradient(135deg,#8B5CF6,#06B6D4);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; color:#fff; flex-shrink:0;
+}
+.user-info { flex:1; min-width:0; }
+.user-name { font-size:12.5px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.user-role { font-size:10.5px; color:rgba(255,255,255,0.4); }
+.logout-btn { color:rgba(255,255,255,0.3); cursor:pointer; font-size:16px; padding:4px; transition:color 0.2s; }
+.logout-btn:hover { color:var(--red); }
 
-    /* ── HERO ── */
-    .hero {
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      text-align: center;
-      padding: 7rem 5% 4rem;
-      position: relative; overflow: hidden;
-    }
-    .hero-bg {
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse 60% 60% at 70% 40%, rgba(212,43,43,0.12) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 50% at 20% 70%, rgba(26,124,62,0.14) 0%, transparent 70%);
-    }
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 50px; padding: 0.4rem 1rem;
-      font-size: 0.76rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 1.6rem;
-      animation: fadeUp 0.7s ease both;
-    }
-    .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-light); flex-shrink: 0; }
+/* ── MAIN ── */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
 
-    .hero h1 {
-      font-family: 'Sora', sans-serif;
-      font-size: clamp(2.5rem, 9vw, 6.5rem);
-      font-weight: 800; line-height: 1.05;
-      letter-spacing: -1.5px;
-      max-width: 860px;
-      animation: fadeUp 0.7s 0.1s ease both;
-    }
-    .hero h1 .accent { color: var(--red); }
-    .hero h1 .accent-g { color: var(--green-light); }
+.topbar {
+  background:var(--surface); border-bottom:1px solid var(--border);
+  padding:0 28px; height:60px; display:flex; align-items:center;
+  gap:16px; flex-shrink:0;
+}
+.topbar-title { font-size:17px; font-weight:700; color:var(--text); flex:1; }
+.topbar-breadcrumb { font-size:13px; color:var(--text-2); }
+.topbar-breadcrumb span { color:var(--text-2); }
+.topbar-breadcrumb strong { color:var(--text); }
+.topbar-actions { display:flex; align-items:center; gap:10px; }
+.icon-btn {
+  width:36px; height:36px; border-radius:8px; border:1px solid var(--border);
+  background:var(--surface); cursor:pointer; display:flex; align-items:center;
+  justify-content:center; font-size:16px; color:var(--text-2);
+  transition:all 0.15s;
+}
+.icon-btn:hover { background:var(--bg); color:var(--text); }
+.notif-dot { position:relative; }
+.notif-dot::after {
+  content:''; position:absolute; top:6px; right:6px;
+  width:7px; height:7px; background:var(--red); border-radius:50%;
+  border:2px solid white;
+}
 
-    .hero p {
-      margin-top: 1.2rem;
-      font-size: clamp(0.92rem, 2.5vw, 1.05rem);
-      color: rgba(255,255,255,0.52);
-      max-width: 440px; line-height: 1.75;
-      animation: fadeUp 0.7s 0.2s ease both;
-    }
+.content { flex:1; overflow-y:auto; padding:24px 28px; }
 
-    .hero-actions {
-      margin-top: 2.2rem;
-      display: flex; gap: 0.9rem; flex-wrap: wrap; justify-content: center;
-      animation: fadeUp 0.7s 0.3s ease both;
-    }
-    .btn-whatsapp {
-      display: inline-flex; align-items: center; gap: 0.65rem;
-      background: var(--green); color: #fff;
-      padding: 0.9rem 1.8rem; border-radius: 50px;
-      font-size: 0.95rem; font-weight: 600; text-decoration: none;
-      box-shadow: 0 4px 30px rgba(26,124,62,0.4);
-      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-    }
-    .btn-whatsapp:hover { background: var(--green-light); transform: translateY(-3px); box-shadow: 0 8px 40px rgba(26,124,62,0.55); }
-    .btn-whatsapp svg { width: 20px; height: 20px; fill: #fff; flex-shrink: 0; }
+/* ── SCREEN STATES ── */
+.screen { display:none; animation: fadeIn 0.25s ease; }
+.screen.active { display:block; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
 
-    .btn-menu {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      border: 1.5px solid rgba(255,255,255,0.2); color: var(--white);
-      padding: 0.9rem 1.8rem; border-radius: 50px;
-      font-size: 0.95rem; font-weight: 500; text-decoration: none;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .btn-menu:hover { border-color: var(--white); background: rgba(255,255,255,0.06); }
+/* ── STATS GRID ── */
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+.stat-card {
+  background:var(--surface); border-radius:12px; padding:20px;
+  border:1px solid var(--border); position:relative; overflow:hidden;
+}
+.stat-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+}
+.stat-card.blue::before { background:linear-gradient(90deg,var(--blue),var(--cyan)); }
+.stat-card.green::before { background:linear-gradient(90deg,var(--green),#34D399); }
+.stat-card.amber::before { background:linear-gradient(90deg,var(--amber),#FCD34D); }
+.stat-card.purple::before { background:linear-gradient(90deg,var(--purple),#A78BFA); }
+.stat-icon { font-size:24px; margin-bottom:10px; }
+.stat-val { font-size:28px; font-weight:800; color:var(--text); line-height:1; }
+.stat-label { font-size:12px; color:var(--text-2); margin-top:4px; font-weight:500; }
+.stat-change { font-size:11px; margin-top:8px; font-weight:600; }
+.stat-change.up { color:var(--green); }
+.stat-change.down { color:var(--red); }
 
-    .hero-stats {
-      margin-top: 3.5rem;
-      display: flex; gap: 2.5rem; flex-wrap: wrap; justify-content: center;
-      animation: fadeUp 0.7s 0.4s ease both;
-    }
-    .stat { text-align: center; }
-    .stat-num {
-      font-family: 'Sora', sans-serif;
-      font-size: 2rem; font-weight: 800; color: var(--white); line-height: 1;
-    }
-    .stat-num span { color: var(--red); }
-    .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+/* ── CARD ── */
+.card {
+  background:var(--surface); border-radius:12px; border:1px solid var(--border);
+  margin-bottom:20px; overflow:hidden;
+}
+.card-header {
+  padding:16px 20px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:12px;
+}
+.card-title { font-size:14px; font-weight:700; color:var(--text); flex:1; }
+.card-body { padding:20px; }
 
-    /* ── TICKER ── */
-    .strip { background: var(--red); overflow: hidden; white-space: nowrap; padding: 0.75rem 0; }
-    .strip-inner {
-      display: inline-flex; gap: 2.5rem;
-      animation: scroll-left 18s linear infinite;
-      font-size: 0.78rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
-      color: rgba(255,255,255,0.9);
-    }
-    .strip-inner span::before { content: "✦ "; }
-    @keyframes scroll-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+/* ── TABLE ── */
+.tbl { width:100%; border-collapse:collapse; }
+.tbl th {
+  padding:10px 14px; text-align:left; font-size:11px;
+  font-weight:700; letter-spacing:0.8px; text-transform:uppercase;
+  color:var(--text-2); background:#F8FAFC; border-bottom:1px solid var(--border);
+}
+.tbl td { padding:12px 14px; font-size:13px; border-bottom:1px solid #F1F5F9; }
+.tbl tr:last-child td { border-bottom:none; }
+.tbl tr:hover td { background:#FAFBFC; }
+.tbl-clickable tr { cursor:pointer; }
 
-    /* ── ABOUT ── */
-    .about-section { padding: 5.5rem 5%; max-width: 1200px; margin: auto; }
-    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-    .about-tag {
-      font-family: 'Sora', sans-serif;
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
-      color: var(--green-light); margin-bottom: 0.9rem;
-    }
-    .about-grid h2 {
-      font-family: 'Sora', sans-serif;
-      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
-      font-weight: 800; line-height: 1.2; margin-bottom: 1.1rem;
-    }
-    .about-text { color: rgba(255,255,255,0.52); line-height: 1.8; font-size: 0.93rem; }
-    .about-features { margin-top: 1.8rem; display: flex; flex-direction: column; gap: 0.9rem; }
-    .feat { display: flex; align-items: center; gap: 0.75rem; font-size: 0.88rem; color: rgba(255,255,255,0.72); }
-    .feat-icon {
-      width: 34px; height: 34px; border-radius: 10px;
-      background: rgba(26,124,62,0.15); border: 1px solid rgba(26,124,62,0.3);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.95rem; flex-shrink: 0;
-    }
+/* ── BADGES ── */
+.badge {
+  display:inline-flex; align-items:center; padding:3px 10px;
+  border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap;
+}
+.badge-green { background:#DCFCE7; color:#15803D; }
+.badge-blue { background:#DBEAFE; color:#1D4ED8; }
+.badge-amber { background:#FEF3C7; color:#B45309; }
+.badge-red { background:#FEE2E2; color:#B91C1C; }
+.badge-purple { background:#EDE9FE; color:#6D28D9; }
+.badge-gray { background:#F1F5F9; color:#475569; }
+.badge-cyan { background:#CFFAFE; color:#0E7490; }
 
-    /* ── MEAL REEL ── */
-    .reel-wrap {
-      position: relative; border-radius: 24px; overflow: hidden;
-      aspect-ratio: 4/5; background: var(--gray);
-      cursor: pointer;
-    }
-    .reel-slide {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      opacity: 0; transition: opacity 0.9s ease;
-    }
-    .reel-slide.active { opacity: 1; }
+/* ── BUTTONS ── */
+.btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:8px; font-family:'Outfit';
+  font-size:13px; font-weight:600; cursor:pointer; border:none;
+  transition:all 0.15s; text-decoration:none; white-space:nowrap;
+}
+.btn-primary { background:var(--blue); color:#fff; }
+.btn-primary:hover { background:#1648C2; }
+.btn-success { background:var(--green); color:#fff; }
+.btn-success:hover { background:var(--green-dark); }
+.btn-outline { background:transparent; color:var(--text); border:1px solid var(--border); }
+.btn-outline:hover { background:var(--bg); }
+.btn-danger { background:var(--red); color:#fff; }
+.btn-sm { padding:5px 12px; font-size:12px; }
 
-    .reel-slide:nth-child(1) { background: linear-gradient(145deg, #1c3d22 0%, #0e1f11 100%); }
-    .reel-slide:nth-child(2) { background: linear-gradient(145deg, #3d1212 0%, #200909 100%); }
-    .reel-slide:nth-child(3) { background: linear-gradient(145deg, #2d2010 0%, #1c1308 100%); }
-    .reel-slide:nth-child(4) { background: linear-gradient(145deg, #12203d 0%, #091020 100%); }
-    .reel-slide:nth-child(5) { background: linear-gradient(145deg, #2d1535 0%, #1a0b20 100%); }
+/* ── AVATAR ── */
+.av {
+  width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,var(--blue),var(--cyan));
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:700; color:#fff; flex-shrink:0;
+}
+.av-sm { width:24px; height:24px; font-size:10px; border-radius:6px; }
 
-    .reel-emoji {
-      font-size: clamp(4.5rem, 12vw, 7rem);
-      filter: drop-shadow(0 10px 28px rgba(0,0,0,0.5));
-      margin-bottom: 1.2rem;
-      animation: reelFloat 3s ease-in-out infinite;
-    }
-    @keyframes reelFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+/* ── PROGRESS ── */
+.progress-bar { background:#E2E8F0; border-radius:10px; height:6px; overflow:hidden; }
+.progress-fill { height:100%; border-radius:10px; transition:width 0.5s; }
 
-    .reel-label {
-      font-family: 'Sora', sans-serif;
-      font-size: clamp(0.95rem, 2.5vw, 1.15rem);
-      font-weight: 700; color: rgba(255,255,255,0.95);
-    }
-    .reel-sub { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 0.3rem; }
+/* ── FORM ── */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.form-group { margin-bottom:16px; }
+.form-group.full { grid-column:1/-1; }
+.form-label { display:block; font-size:12px; font-weight:600; color:var(--text-2); margin-bottom:6px; letter-spacing:0.3px; }
+.form-input, .form-select, .form-textarea {
+  width:100%; padding:9px 12px; border:1px solid var(--border); border-radius:8px;
+  font-family:'Outfit'; font-size:13px; color:var(--text); background:var(--surface);
+  outline:none; transition:border-color 0.2s;
+}
+.form-input:focus, .form-select:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(26,86,219,0.08); }
+.form-textarea { resize:vertical; min-height:80px; }
 
-    .reel-dots {
-      position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%);
-      display: flex; gap: 6px; z-index: 2;
-    }
-    .reel-dot {
-      width: 6px; height: 6px; border-radius: 3px;
-      background: rgba(255,255,255,0.3); transition: background 0.3s, width 0.3s;
-      cursor: pointer;
-    }
-    .reel-dot.active { background: var(--green-light); width: 18px; }
+/* ── MODAL ── */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:500;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity 0.2s;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal {
+  background:var(--surface); border-radius:16px; width:600px; max-width:90vw;
+  max-height:80vh; overflow-y:auto; box-shadow:0 40px 80px rgba(0,0,0,0.2);
+  transform:scale(0.95) translateY(10px); transition:transform 0.2s;
+}
+.modal-overlay.open .modal { transform:scale(1) translateY(0); }
+.modal-header {
+  padding:20px 24px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:12px;
+}
+.modal-title { font-size:16px; font-weight:700; flex:1; }
+.modal-close { cursor:pointer; color:var(--text-2); font-size:20px; padding:4px; border:none; background:none; }
+.modal-body { padding:24px; }
+.modal-footer {
+  padding:16px 24px; border-top:1px solid var(--border);
+  display:flex; justify-content:flex-end; gap:10px;
+}
 
-    .reel-badge {
-      position: absolute; top: 1rem; right: 1rem;
-      background: var(--red); color: #fff; border-radius: 10px;
-      padding: 0.4rem 0.8rem; font-size: 0.73rem; font-weight: 700;
-      font-family: 'Sora', sans-serif; z-index: 2;
-    }
+/* ── SECTION HEADER ── */
+.section-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:20px;
+}
+.section-title { font-size:20px; font-weight:800; color:var(--text); }
+.section-sub { font-size:13px; color:var(--text-2); margin-top:2px; }
 
-    /* Progress bar at top of reel */
-    .reel-progress {
-      position: absolute; top: 0; left: 0; height: 3px;
-      background: var(--green-light); z-index: 3;
-      width: 0%; transition: width 2.5s linear;
-    }
+/* ── ALERT ── */
+.alert {
+  padding:12px 16px; border-radius:10px; font-size:13px;
+  display:flex; align-items:flex-start; gap:10px; margin-bottom:16px;
+}
+.alert-info { background:#EFF6FF; border:1px solid #BFDBFE; color:#1E40AF; }
+.alert-success { background:#F0FDF4; border:1px solid #BBF7D0; color:#166534; }
+.alert-warn { background:#FFFBEB; border:1px solid #FDE68A; color:#92400E; }
 
-    /* ── MENU ── */
-    .menu-section { padding: 5rem 5%; background: rgba(255,255,255,0.02); }
-    .section-header { text-align: center; margin-bottom: 2.5rem; }
-    .section-tag {
-      font-family: 'Sora', sans-serif;
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
-      color: var(--red); display: block; margin-bottom: 0.5rem;
-    }
-    .section-header h2 {
-      font-family: 'Sora', sans-serif;
-      font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 800;
-    }
-    .menu-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.2rem; max-width: 1200px; margin: auto;
-    }
-    .menu-card {
-      background: var(--off-black); border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 18px; padding: 1.4rem;
-      transition: border-color 0.2s, transform 0.2s;
-    }
-    .menu-card:hover { border-color: rgba(26,124,62,0.4); transform: translateY(-4px); }
-    .menu-emoji { font-size: 2.6rem; margin-bottom: 0.8rem; display: block; }
-    .menu-card h3 { font-family: 'Sora', sans-serif; font-size: 0.97rem; font-weight: 700; margin-bottom: 0.35rem; }
-    .menu-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem; }
-    .menu-price { font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--green-light); }
-    .menu-badge {
-      display: inline-block; background: rgba(212,43,43,0.15);
-      border: 1px solid rgba(212,43,43,0.3); color: var(--red);
-      border-radius: 50px; padding: 0.12rem 0.65rem;
-      font-size: 0.67rem; font-weight: 700; margin-left: 0.4rem;
-    }
+/* ── DASHBOARD SPECIFICS ── */
+.quick-actions { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
+.quick-action {
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  padding:16px; text-align:center; cursor:pointer; transition:all 0.2s;
+}
+.quick-action:hover { border-color:var(--blue); transform:translateY(-2px); box-shadow:0 4px 16px rgba(26,86,219,0.1); }
+.qa-icon { font-size:24px; margin-bottom:8px; }
+.qa-label { font-size:12px; font-weight:600; color:var(--text-2); }
 
-    /* ── ORDER CTA ── */
-    .order-section { padding: 5.5rem 5%; text-align: center; position: relative; overflow: hidden; }
-    .order-glow {
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(26,124,62,0.1) 0%, transparent 70%);
-    }
-    .order-section h2 {
-      font-family: 'Sora', sans-serif;
-      font-size: clamp(1.8rem, 5vw, 3.5rem); font-weight: 800;
-      line-height: 1.12; max-width: 650px; margin: 0 auto 1.2rem;
-      position: relative;
-    }
-    .order-section > p {
-      color: rgba(255,255,255,0.5); font-size: 0.95rem;
-      max-width: 400px; margin: 0 auto 2.2rem; position: relative;
-    }
-    .btn-whatsapp-lg {
-      display: inline-flex; align-items: center; gap: 0.8rem;
-      background: var(--green); color: #fff;
-      padding: 1.1rem 2.2rem; border-radius: 50px;
-      font-size: 1rem; font-weight: 700; text-decoration: none;
-      box-shadow: 0 4px 40px rgba(26,124,62,0.45);
-      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-      position: relative;
-    }
-    .btn-whatsapp-lg:hover { background: var(--green-light); transform: translateY(-3px); box-shadow: 0 10px 50px rgba(26,124,62,0.6); }
-    .btn-whatsapp-lg svg { width: 24px; height: 24px; fill: #fff; flex-shrink: 0; }
-    .order-note { margin-top: 1rem; font-size: 0.8rem; color: var(--muted); position: relative; }
+.two-col { display:grid; grid-template-columns:1.5fr 1fr; gap:20px; }
+.activity-item { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid #F1F5F9; }
+.activity-item:last-child { border-bottom:none; }
+.activity-dot {
+  width:8px; height:8px; border-radius:50%; background:var(--blue); margin-top:5px; flex-shrink:0;
+}
+.activity-text { font-size:13px; color:var(--text); line-height:1.4; }
+.activity-time { font-size:11px; color:var(--text-2); margin-top:2px; }
 
-    /* ── FOOTER ── */
-    footer { background: var(--off-black); border-top: 1px solid rgba(255,255,255,0.07); padding: 4rem 5% 2rem; }
-    .footer-top { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 3rem; max-width: 1200px; margin: 0 auto 2.5rem; }
-    .footer-brand .logo { font-size: 1.6rem; display: block; margin-bottom: 0.8rem; }
-    .footer-brand p { font-size: 0.86rem; color: var(--muted); line-height: 1.75; max-width: 260px; }
-    .hours-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(26,124,62,0.12); border: 1px solid rgba(26,124,62,0.25);
-      border-radius: 50px; padding: 0.35rem 0.9rem;
-      font-size: 0.76rem; color: var(--green-light); font-weight: 600; margin-top: 1rem;
-    }
-    .green-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-light); flex-shrink: 0; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-    .footer-col h4 {
-      font-family: 'Sora', sans-serif;
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
-      color: rgba(255,255,255,0.35); margin-bottom: 1.1rem;
-    }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
-    .footer-col ul li { font-size: 0.87rem; color: rgba(255,255,255,0.62); }
-    .contact-item { display: flex; align-items: flex-start; gap: 0.6rem; }
-    .contact-icon { font-size: 0.95rem; flex-shrink: 0; margin-top: 1px; }
-    .footer-bottom {
-      max-width: 1200px; margin: auto; padding-top: 1.8rem;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 0.78rem; color: var(--muted); flex-wrap: wrap; gap: 0.8rem;
-    }
+/* ── DETAIL VIEW ── */
+.detail-header {
+  background:linear-gradient(135deg,var(--navy),var(--navy-mid));
+  border-radius:12px; padding:24px; margin-bottom:20px; color:#fff;
+  display:flex; gap:20px; align-items:center;
+}
+.detail-avatar {
+  width:64px; height:64px; border-radius:14px;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; font-weight:800; color:#fff; flex-shrink:0;
+}
+.detail-name { font-size:22px; font-weight:800; }
+.detail-sub { font-size:13px; color:rgba(255,255,255,0.6); margin-top:2px; }
+.detail-tags { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+.detail-tag {
+  background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2);
+  padding:3px 10px; border-radius:20px; font-size:11px; color:rgba(255,255,255,0.85);
+}
+.detail-actions { margin-left:auto; display:flex; flex-direction:column; gap:8px; }
 
-    .footer-brand-logo { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.8rem; }
-    .logo-img-box-sm {
-      width: 36px; height: 36px; border-radius: 8px;
-      overflow: hidden; flex-shrink: 0;
-      background: rgba(255,255,255,0.06);
-    }
+.info-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0; }
+.info-item { padding:14px 16px; border-bottom:1px solid var(--border); border-right:1px solid var(--border); }
+.info-item:nth-child(3n) { border-right:none; }
+.info-label { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-2); margin-bottom:4px; }
+.info-val { font-size:14px; font-weight:600; color:var(--text); }
 
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+/* ── RESULT TABLE ── */
+.result-summary {
+  background:linear-gradient(135deg,var(--navy),var(--navy-mid));
+  border-radius:12px; padding:20px; color:#fff; margin-bottom:20px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:16px;
+}
+.rs-item { text-align:center; }
+.rs-val { font-size:28px; font-weight:800; }
+.rs-label { font-size:11px; color:rgba(255,255,255,0.5); margin-top:2px; }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 900px) {
-      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
-      .reel-wrap { order: -1; aspect-ratio: 16/10; }
-      .footer-top { grid-template-columns: 1fr 1fr; }
-      .footer-brand { grid-column: 1 / -1; }
-      .footer-brand p { max-width: 100%; }
-    }
+.grade-pill {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:32px; height:24px; border-radius:6px; font-size:12px; font-weight:700;
+}
+.grade-A { background:#DCFCE7; color:#15803D; }
+.grade-B { background:#DBEAFE; color:#1D4ED8; }
+.grade-C { background:#FEF3C7; color:#B45309; }
+.grade-D { background:#FED7AA; color:#C2410C; }
+.grade-F { background:#FEE2E2; color:#B91C1C; }
 
-    @media (max-width: 640px) {
-      nav { padding: 0.9rem 5%; }
-      .nav-links, .nav-cta { display: none; }
-      .hamburger { display: flex; }
+/* ── PAYMENT ── */
+.payment-summary {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px;
+}
+.pay-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:18px; text-align:center;
+}
+.pay-amount { font-size:22px; font-weight:800; }
+.pay-label { font-size:12px; color:var(--text-2); margin-top:4px; }
 
-      .hero { padding: 6rem 5% 3rem; }
-      .hero h1 { letter-spacing: -0.5px; }
-      .hero-stats { gap: 1.5rem; }
-      .stat-num { font-size: 1.6rem; }
+/* ── STEP INDICATOR ── */
+.steps { display:flex; align-items:center; margin-bottom:28px; }
+.step {
+  display:flex; align-items:center; gap:8px; font-size:12px;
+  font-weight:600; color:var(--text-2); flex:1;
+}
+.step-num {
+  width:28px; height:28px; border-radius:50%; border:2px solid var(--border);
+  display:flex; align-items:center; justify-content:center; font-size:12px;
+  font-weight:700; flex-shrink:0; background:var(--surface);
+}
+.step.done .step-num { background:var(--green); border-color:var(--green); color:#fff; }
+.step.active .step-num { background:var(--blue); border-color:var(--blue); color:#fff; }
+.step.active { color:var(--text); }
+.step-line { flex:1; height:2px; background:var(--border); margin:0 8px; }
+.step-line.done { background:var(--green); }
 
-      .about-section { padding: 3.5rem 5%; }
-      .reel-wrap { aspect-ratio: 4/3; border-radius: 18px; }
-      .reel-emoji { font-size: 4rem; }
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:10px; }
 
-      .menu-section { padding: 3.5rem 5%; }
-      .menu-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
-      .menu-card { padding: 1rem; }
-      .menu-emoji { font-size: 2rem; }
+/* ── NOTIFICATION TOAST ── */
+.toast {
+  position:fixed; bottom:24px; right:24px; z-index:9999;
+  background:var(--navy); color:#fff; padding:12px 18px; border-radius:10px;
+  font-size:13px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+  transform:translateY(80px); opacity:0; transition:all 0.3s;
+  display:flex; align-items:center; gap:10px; max-width:320px;
+}
+.toast.show { transform:none; opacity:1; }
+.toast-icon { font-size:18px; }
 
-      .order-section { padding: 4rem 5%; }
-      .btn-whatsapp-lg { width: 100%; max-width: 320px; justify-content: center; }
+/* ── SEARCH BAR ── */
+.search-bar {
+  display:flex; align-items:center; gap:8px; background:var(--bg);
+  border:1px solid var(--border); border-radius:8px; padding:7px 12px;
+  font-size:13px; color:var(--text-2); cursor:text;
+}
+.search-bar input {
+  border:none; background:transparent; outline:none;
+  font-family:'Outfit'; font-size:13px; color:var(--text); flex:1;
+}
 
-      .footer-top { grid-template-columns: 1fr; gap: 2rem; }
-      .footer-bottom { flex-direction: column; text-align: center; }
+/* ── TABS ── */
+.tabs { display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:20px; }
+.tab {
+  padding:10px 16px; font-size:13px; font-weight:600; color:var(--text-2);
+  cursor:pointer; border-bottom:2px solid transparent; transition:all 0.15s;
+  margin-bottom:-1px;
+}
+.tab.active { color:var(--blue); border-bottom-color:var(--blue); }
+.tab:hover:not(.active) { color:var(--text); }
 
-      .hero-actions { flex-direction: column; align-items: center; }
-      .btn-whatsapp, .btn-menu { width: 100%; max-width: 300px; justify-content: center; }
-    }
+.tab-content { display:none; }
+.tab-content.active { display:block; animation: fadeIn 0.2s; }
 
-    @media (max-width: 380px) {
-      .menu-grid { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 2.1rem; }
-    }
-  </style>
+/* ── PIE CHART ── */
+.mini-chart { display:flex; align-items:center; gap:16px; }
+.chart-circle { position:relative; width:80px; height:80px; flex-shrink:0; }
+.chart-circle svg { transform:rotate(-90deg); }
+.chart-center {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+}
+.chart-center span { font-size:16px; font-weight:800; color:var(--text); }
+.chart-center small { font-size:9px; color:var(--text-2); }
+.chart-legend { flex:1; }
+.legend-item { display:flex; align-items:center; gap:6px; font-size:11px; margin-bottom:5px; }
+.legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+/* ── BACK BTN ── */
+.back-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:12px; font-weight:600; color:var(--text-2);
+  cursor:pointer; margin-bottom:16px; padding:4px 8px;
+  border-radius:6px; transition:all 0.15s;
+}
+.back-btn:hover { background:var(--bg); color:var(--text); }
+
+/* ── NOTIFICATION PANEL ── */
+.notif-panel {
+  position:fixed; top:60px; right:0; width:340px; height:calc(100vh - 60px);
+  background:var(--surface); border-left:1px solid var(--border);
+  z-index:400; transform:translateX(100%); transition:transform 0.3s;
+  display:flex; flex-direction:column;
+}
+.notif-panel.open { transform:none; }
+.notif-header { padding:16px 20px; border-bottom:1px solid var(--border); font-size:15px; font-weight:700; }
+.notif-list { flex:1; overflow-y:auto; }
+.notif-item { padding:14px 20px; border-bottom:1px solid #F8FAFC; cursor:pointer; transition:background 0.15s; }
+.notif-item:hover { background:var(--bg); }
+.notif-item.unread { border-left:3px solid var(--blue); }
+.notif-title { font-size:13px; font-weight:600; margin-bottom:3px; }
+.notif-msg { font-size:12px; color:var(--text-2); line-height:1.4; }
+.notif-time { font-size:11px; color:var(--slate); margin-top:4px; }
+</style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a href="#" class="logo-wrap">
-    <!-- <div class="logo-img-box" id="logoBox" title="Click to upload your logo">
-      <span class="logo-placeholder">Your<br>Logo</span>
-      <img id="logoImg" src="" alt="Logo"/>
-      <input type="file" accept="image/*" id="logoUpload" aria-label="Upload logo"/>
-    </div> -->
-    <div class="logo">Sortir<span>NG</span></div>
-  </a>
-  <ul class="nav-links">
-    <li><a href="#about">About</a></li>
-    <li><a href="#menu">Menu</a></li>
-    <li><a href="#order">Order</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
-  <a href="https://wa.me/2349166434201?text=Hello!%20I'd%20like%20to%20place%20an%20order." class="nav-cta" target="_blank">Order Now</a>
-  <button class="hamburger" id="hamburger" aria-label="Toggle menu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-
-<!-- MOBILE NAV DRAWER -->
-<div class="mobile-nav" id="mobileNav">
-  <a href="#about" onclick="closeMobileNav()">About</a>
-  <a href="#menu" onclick="closeMobileNav()">Menu</a>
-  <a href="#order" onclick="closeMobileNav()">Order</a>
-  <a href="#contact" onclick="closeMobileNav()">Contact</a>
-  <a href="https://wa.me/2349166434201?text=Hello!%20I'd%20like%20to%20place%20an%20order." class="mobile-cta" target="_blank">Order on WhatsApp</a>
-</div>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-badge"><span class="badge-dot"></span> Now Accepting Orders via WhatsApp</div>
-  <h1>Bold <span class="accent">Flavours,</span><br><span class="accent-g">Nigerian</span> Soul</h1>
-  <p>Fresh, fast, and packed with the flavours you grew up loving. Quality you can taste, service you remember.</p>
-  <div class="hero-actions">
-    <a href="https://wa.me/2349166434201?text=Hello!%20I'd%20like%20to%20place%20an%20order." class="btn-whatsapp" target="_blank">
-      <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      Order on WhatsApp
-    </a>
-    <a href="#menu" class="btn-menu">Browse Menu →</a>
-  </div>
-  <div class="hero-stats">
-    <div class="stat"><div class="stat-num">500<span>+</span></div><div class="stat-label">Orders Daily</div></div>
-    <div class="stat"><div class="stat-num">4.9<span>★</span></div><div class="stat-label">Customer Rating</div></div>
-    <div class="stat"><div class="stat-num">30<span>min</span></div><div class="stat-label">Avg. Delivery</div></div>
-  </div>
-</section>
-
-<!-- TICKER STRIP -->
-<div class="strip">
-  <div class="strip-inner">
-    <span>Jollof Rice</span><span>Grilled Chicken</span><span>Peppered Snail</span><span>Suya & Fries</span>
-    <span>Pounded Yam</span><span>Egusi Soup</span><span>Pepper Soup</span><span>Fried Plantain</span>
-    <span>Jollof Rice</span><span>Grilled Chicken</span><span>Peppered Snail</span><span>Suya & Fries</span>
-    <span>Pounded Yam</span><span>Egusi Soup</span><span>Pepper Soup</span><span>Fried Plantain</span>
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-bg-pattern"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-mark">T</div>
+      <div class="login-logo-text">TIMS</div>
+    </div>
+    <div class="login-logo-sub">Tertiary Institution Management System</div>
+    <div class="inst-badge">
+      <strong>🏛️ Federal Polytechnic, Ilaro</strong>
+      Ogun State · Academic Session 2024/2025
+    </div>
+    <div class="login-role-tabs">
+      <button class="role-tab active" onclick="setRole(this,'Admin / Registry')">Registry</button>
+      <button class="role-tab" onclick="setRole(this,'Lecturer')">Lecturer</button>
+      <button class="role-tab" onclick="setRole(this,'Student')">Student</button>
+      <button class="role-tab" onclick="setRole(this,'Bursary')">Bursary</button>
+    </div>
+    <div class="login-field">
+      <label>Staff / Matric Number</label>
+      <input type="text" id="login-user" value="ADM-2024-001" placeholder="Enter ID">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="login-pass" value="••••••••" placeholder="Password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In to TIMS →</button>
+    <div class="login-hint">Demo credentials pre-filled · Click Sign In to proceed</div>
   </div>
 </div>
 
-<!-- ABOUT -->
-<section class="about-section" id="about">
-  <div class="about-grid">
-
-    <!-- Text -->
-    <div>
-      <div class="about-tag">Our Story</div>
-      <h2>Rooted in Naija,<br>Built for Everyone</h2>
-      <p class="about-text">From a small kitchen in Port Harcourt, Sortir has grown into your go-to spot for authentic Nigerian flavours and crave-worthy fast food. Every dish is made fresh, with love and the right amount of pepper.</p>
-      <div class="about-features">
-        <div class="feat"><div class="feat-icon">🌿</div>Fresh local ingredients, sourced daily</div>
-        <div class="feat"><div class="feat-icon">⚡</div>Dine-in and fast deliveries</div>
-        <div class="feat"><div class="feat-icon">🤌</div>Authentic recipes, never compromise</div>
+<!-- APP SHELL -->
+<div id="app" style="display:none">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-row">
+        <div class="logo-mark">T</div>
+        <div class="logo-name">TIMS</div>
+      </div>
+      <div class="inst-name">Federal Polytechnic, Ilaro<br>2024/2025 Session</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <div class="nav-item active" onclick="nav('dashboard',this)">
+          <span class="nav-icon">📊</span> Dashboard
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Admissions</div>
+        <div class="nav-item" onclick="nav('admissions',this)">
+          <span class="nav-icon">📋</span> Applications
+          <span class="nav-badge">47</span>
+        </div>
+        <div class="nav-item" onclick="nav('admitted',this)">
+          <span class="nav-icon">🎓</span> Admitted Students
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Academics</div>
+        <div class="nav-item" onclick="nav('students',this)">
+          <span class="nav-icon">👥</span> Student Records
+        </div>
+        <div class="nav-item" onclick="nav('courses',this)">
+          <span class="nav-icon">📚</span> Course Registration
+        </div>
+        <div class="nav-item" onclick="nav('results',this)">
+          <span class="nav-icon">📈</span> Results & Grades
+          <span class="nav-badge">8</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Finance</div>
+        <div class="nav-item" onclick="nav('fees',this)">
+          <span class="nav-icon">💳</span> Fees & Payments
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Administration</div>
+        <div class="nav-item" onclick="nav('staff',this)">
+          <span class="nav-icon">👤</span> Staff Management
+        </div>
+        <div class="nav-item" onclick="nav('reports',this)">
+          <span class="nav-icon">📄</span> Reports & Analytics
+        </div>
       </div>
     </div>
-
-    <!-- Meal Reel Slideshow -->
-    <div class="reel-wrap" id="reel">
-      <div class="reel-progress" id="reelProgress"></div>
-
-      <div class="reel-slide active">
-        <div class="reel-emoji">🍛</div>
-        <div class="reel-label">Party Jollof Rice</div>
-        <div class="reel-sub">Smoky firewood flavour</div>
+    <div class="sidebar-user">
+      <div class="user-avatar">AO</div>
+      <div class="user-info">
+        <div class="user-name">Adeyemi Olawale</div>
+        <div class="user-role" id="current-role">Registrar</div>
       </div>
-      <div class="reel-slide">
-        <div class="reel-emoji">🍗</div>
-        <div class="reel-label">Peppered Chicken</div>
-        <div class="reel-sub">Grilled to perfection</div>
-      </div>
-      <div class="reel-slide">
-        <div class="reel-emoji">🥩</div>
-        <div class="reel-label">Suya Skewers</div>
-        <div class="reel-sub">Northern spice blend</div>
-      </div>
-      <div class="reel-slide">
-        <div class="reel-emoji">🍜</div>
-        <div class="reel-label">Egusi Soup</div>
-        <div class="reel-sub">Rich, hearty & homestyle</div>
-      </div>
-      <div class="reel-slide">
-        <div class="reel-emoji">🍔</div>
-        <div class="reel-label">Naija Smash Burger</div>
-        <div class="reel-sub">With fried plantain inside</div>
-      </div>
-
-      <div class="reel-badge">🔥 Fan Faves</div>
-
-      <div class="reel-dots" id="reelDots">
-        <div class="reel-dot active" data-index="0"></div>
-        <div class="reel-dot" data-index="1"></div>
-        <div class="reel-dot" data-index="2"></div>
-        <div class="reel-dot" data-index="3"></div>
-        <div class="reel-dot" data-index="4"></div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- MENU -->
-<section class="menu-section" id="menu">
-  <div class="section-header">
-    <span class="section-tag">What We Serve</span>
-    <h2>Our Most-Loved Dishes</h2>
-  </div>
-  <div class="menu-grid">
-    <div class="menu-card">
-      <span class="menu-emoji">🍛</span>
-      <h3>Party Jollof Rice <span class="menu-badge">Best Seller</span></h3>
-      <p>Smoky, slow-cooked over firewood, served with your choice of protein and salad.</p>
-      <div class="menu-price">From ₦2,500</div>
-    </div>
-    <div class="menu-card">
-      <span class="menu-emoji">🍗</span>
-      <h3>Peppered Chicken Platter</h3>
-      <p>Marinated whole chicken grilled and tossed in our signature pepper sauce.</p>
-      <div class="menu-price">From ₦4,000</div>
-    </div>
-    <div class="menu-card">
-      <span class="menu-emoji">🥩</span>
-      <h3>Suya Skewers <span class="menu-badge">🔥 Spicy</span></h3>
-      <p>Northern-style spiced beef suya skewers, served with sliced onions and tomatoes.</p>
-      <div class="menu-price">From ₦1,800</div>
-    </div>
-    <div class="menu-card">
-      <span class="menu-emoji">🍔</span>
-      <h3>Naija Smash Burger</h3>
-      <p>Double smash patty with plantain, peppered egg, and our special sauce on brioche.</p>
-      <div class="menu-price">From ₦3,200</div>
-    </div>
-    <div class="menu-card">
-      <span class="menu-emoji">🍜</span>
-      <h3>Egusi Soup &amp; Swallow</h3>
-      <p>Rich, nutty egusi cooked with assorted meat and stockfish. Choose pounded yam or eba.</p>
-      <div class="menu-price">From ₦3,500</div>
-    </div>
-    <div class="menu-card">
-      <span class="menu-emoji">🍟</span>
-      <h3>Plantain &amp; Fries Combo</h3>
-      <p>Crispy fried sweet plantain paired with seasoned potato fries and spicy dipping sauce.</p>
-      <div class="menu-price">From ₦1,200</div>
+      <div class="logout-btn" onclick="logout()" title="Logout">⏏</div>
     </div>
   </div>
-</section>
 
-<!-- ORDER CTA -->
-<section class="order-section" id="order">
-  <div class="order-glow"></div>
-  <h2>Ready to Eat?<br>We're One Message Away.</h2>
-  <p>Skip the queue. Message us on WhatsApp and get your order delivered fast — no app needed.</p>
-  <a href="https://wa.me/2349166434201?text=Hello!%20I'd%20like%20to%20place%20an%20order%20from%20Sortir." class="btn-whatsapp-lg" target="_blank">
-    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    Chat Us on WhatsApp
-  </a>
-  <p class="order-note">📍 Available for dine-in, takeaway & delivery · Mon–Sun 8AM – 9PM</p>
-</section>
-
-<!-- FOOTER / CONTACT -->
-<footer id="contact">
-  <div class="footer-top">
-    <div class="footer-brand">
-      <div class="footer-brand-logo">
-        <!-- <div class="logo-img-box-sm" id="footerLogoBox">
-          <img id="footerLogoImg" src="" alt="Logo" style="width:100%;height:100%;object-fit:contain;display:none;border-radius:8px;"/>
-          <span class="logo-placeholder-sm" id="footerLogoPlaceholder"></span>
-        </div> -->
-        <span class="logo">Sortir<span>NG</span></span>
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-breadcrumb" id="breadcrumb"><strong>Dashboard</strong></div>
+      <div class="topbar-actions">
+        <div class="search-bar" style="width:220px">
+          <span>🔍</span>
+          <input type="text" placeholder="Search students, courses…">
+        </div>
+        <div class="icon-btn notif-dot" onclick="toggleNotif()" title="Notifications">🔔</div>
+        <div class="icon-btn" title="Settings">⚙️</div>
       </div>
-      <p>Serving bold, authentic Nigerian cuisine and fast food in the heart of Port Harcourt. Fresh daily. Zero compromise.</p>
-      <div><span class="hours-badge"><span class="green-dot"></span> Open Now · Closes 9PM</span></div>
     </div>
-    <div class="footer-col">
-      <h4>Quick Links</h4>
-      <ul>
-        <li><a href="#about" style="color:inherit;text-decoration:none;">About Us</a></li>
-        <li><a href="#menu" style="color:inherit;text-decoration:none;">Our Menu</a></li>
-        <li><a href="#order" style="color:inherit;text-decoration:none;">Place an Order</a></li>
-        <li><a href="#contact" style="color:inherit;text-decoration:none;">Contact</a></li>
-      </ul>
+
+    <div class="content">
+
+      <!-- ═══════════════ DASHBOARD ═══════════════ -->
+      <div class="screen active" id="screen-dashboard">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Good morning, Adeyemi 👋</div>
+            <div class="section-sub">Here's what's happening at Federal Polytechnic, Ilaro today</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm">📅 2024/2025 Session</button>
+            <!-- <button class="btn btn-primary btn-sm" onclick="nav('admissions',document.querySelector('[onclick=\"nav(\'admissions\',this)\"]'))">New Application</button> -->
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-icon">👥</div>
+            <div class="stat-val">4,872</div>
+            <div class="stat-label">Total Enrolled Students</div>
+            <div class="stat-change up">↑ 312 from last session</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">📋</div>
+            <div class="stat-val">47</div>
+            <div class="stat-label">Pending Applications</div>
+            <div class="stat-change up">↑ 12 new today</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-icon">💰</div>
+            <div class="stat-val">₦186M</div>
+            <div class="stat-label">Revenue This Session</div>
+            <div class="stat-change up">↑ 78% fee collection rate</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-icon">📚</div>
+            <div class="stat-val">3,241</div>
+            <div class="stat-label">Course Registrations</div>
+            <div class="stat-change down">↓ 1,631 yet to register</div>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <div class="quick-action" onclick="nav('admissions',getNavItem('admissions'))">
+            <div class="qa-icon">📋</div>
+            <div class="qa-label">Process Applications</div>
+          </div>
+          <div class="quick-action" onclick="nav('students',getNavItem('students'))">
+            <div class="qa-icon">👤</div>
+            <div class="qa-label">Add Student</div>
+          </div>
+          <div class="quick-action" onclick="nav('results',getNavItem('results'))">
+            <div class="qa-icon">📈</div>
+            <div class="qa-label">Upload Results</div>
+          </div>
+          <div class="quick-action" onclick="nav('fees',getNavItem('fees'))">
+            <div class="qa-icon">💳</div>
+            <div class="qa-label">Check Fee Status</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📊 Enrolment by Department</div>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <script>
+                  document.write([
+                    ['Computer Engineering','#1A56DB',892,1000],
+                    ['Electrical Engineering','#06B6D4',756,900],
+                    ['Business Admin','#10B981',641,800],
+                    ['Accountancy','#F59E0B',589,700],
+                    ['Mechanical Eng.','#8B5CF6',498,600],
+                    ['Science Lab. Tech.','#EF4444',412,500],
+                  ].map(([dept,col,val,max])=>`
+                    <div>
+                      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                        <span style="font-size:12px;font-weight:600">${dept}</span>
+                        <span style="font-size:12px;color:var(--text-2)">${val} students</span>
+                      </div>
+                      <div class="progress-bar">
+                        <div class="progress-fill" style="width:${(val/max*100).toFixed(0)}%;background:${col}"></div>
+                      </div>
+                    </div>
+                  `).join(''));
+                  </script>
+                <!-- ${[
+                  ['Computer Engineering','#1A56DB',892,1000],
+                  ['Electrical Engineering','#06B6D4',756,900],
+                  ['Business Admin','#10B981',641,800],
+                  ['Accountancy','#F59E0B',589,700],
+                  ['Mechanical Eng.','#8B5CF6',498,600],
+                  ['Science Lab. Tech.','#EF4444',412,500],
+                ].map(([dept,col,val,max])=>`
+                  <div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                      <span style="font-size:12px;font-weight:600">${dept}</span>
+                      <span style="font-size:12px;color:var(--text-2)">${val} students</span>
+                    </div>
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width:${(val/max*100).toFixed(0)}%;background:${col}"></div>
+                    </div>
+                  </div>
+                `).join('')} -->
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🔔 Recent Activity</div>
+            </div>
+            <div class="card-body" style="padding:12px 16px">
+              <script>
+                document.write([
+                  ['New application received','Chinedu Okafor – Computer Engineering','2 min ago','#1A56DB'],
+                  ['Result approved by Senate','EEE 301 – Second Semester 2023/24','15 min ago','#10B981'],
+                  ['Fee payment confirmed','₦45,000 – Amina Bello (POL/ND2/2023/041)','1 hr ago','#F59E0B'],
+                  ['Course registration closed','ND1 – All Departments, 2024/25 First Sem.','2 hrs ago','#8B5CF6'],
+                  ['New staff added','Dr. Fatima Usman – Computer Engineering','3 hrs ago','#06B6D4'],
+                  ['Admission letter sent','12 students – School of Engineering','5 hrs ago','#EF4444'],
+                ].map(([title,msg,time,col])=>`
+                  <div class="activity-item">
+                    <div style="width:8px;height:8px;border-radius:50%;background:${col};margin-top:5px;flex-shrink:0"></div>
+                    <div>
+                      <div class="activity-text" style="font-weight:600">${title}</div>
+                      <div class="activity-time">${msg}</div>
+                      <div class="activity-time" style="color:var(--slate)">${time}</div>
+                    </div>
+                  </div>
+                `).join(''));
+                </script>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📅 Upcoming Events</div>
+            </div>
+            <div class="card-body" style="padding:0">
+              <script>
+                document.write([
+                  ['Jan 20','Second Semester Registration Opens','All Departments','blue'],
+                  ['Jan 28','Late Registration Deadline','Admin Fee Applies','amber'],
+                  ['Feb 3','Mid-Semester Test Week','1st–6th February','purple'],
+                  ['Mar 15','2nd Semester Exam Timetable Release','TBA','green'],
+                  ['Apr 7','Examination Period Begins','3 Weeks','red'],
+                ].map(([date,event,detail,col])=>`
+                  <div style="display:flex;gap:14px;padding:12px 20px;border-bottom:1px solid #F1F5F9;align-items:center">
+                    <div style="text-align:center;flex-shrink:0;width:44px">
+                      <div style="font-size:10px;color:var(--text-2);font-weight:600">
+                        ${date.split(' ')[0].toUpperCase()}
+                      </div>
+                      <div style="font-size:18px;font-weight:800;
+                        color:var(--${col === 'blue'
+                          ? 'blue'
+                          : col === 'green'
+                          ? 'green'
+                          : col === 'amber'
+                          ? 'amber'
+                          : col === 'purple'
+                          ? 'purple'
+                          : 'red'})">
+                        ${date.split(' ')[1]}
+                      </div>
+                    </div>
+                    <div>
+                      <div style="font-size:13px;font-weight:600">${event}</div>
+                      <div style="font-size:11px;color:var(--text-2)">${detail}</div>
+                    </div>
+                  </div>
+                `).join(''));
+                </script>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">💰 Fee Collection Summary</div></div>
+            <div class="card-body">
+              <div class="mini-chart" style="margin-bottom:16px">
+                <div class="chart-circle">
+                  <svg width="80" height="80" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="30" fill="none" stroke="#E2E8F0" stroke-width="8"/>
+                    <circle cx="40" cy="40" r="30" fill="none" stroke="#10B981" stroke-width="8"
+                      stroke-dasharray="${2*Math.PI*30*0.78} ${2*Math.PI*30*0.22}" stroke-linecap="round"/>
+                  </svg>
+                  <div class="chart-center"><span>78%</span><small>paid</small></div>
+                </div>
+                <div class="chart-legend">
+                  <div class="legend-item"><div class="legend-dot" style="background:#10B981"></div><span>Fully Paid — 3,801 students</span></div>
+                  <div class="legend-item"><div class="legend-dot" style="background:#F59E0B"></div><span>Partial — 612 students</span></div>
+                  <div class="legend-item"><div class="legend-dot" style="background:#EF4444"></div><span>Unpaid — 459 students</span></div>
+                </div>
+              </div>
+              <div style="background:#F8FAFC;border-radius:8px;padding:14px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                  <div><div style="font-size:11px;color:var(--text-2)">Total Expected</div><div style="font-size:16px;font-weight:800">₦238.5M</div></div>
+                  <div><div style="font-size:11px;color:var(--text-2)">Total Collected</div><div style="font-size:16px;font-weight:800;color:var(--green)">₦186.0M</div></div>
+                  <div><div style="font-size:11px;color:var(--text-2)">Outstanding</div><div style="font-size:16px;font-weight:800;color:var(--red)">₦52.5M</div></div>
+                  <div><div style="font-size:11px;color:var(--text-2)">This Week</div><div style="font-size:16px;font-weight:800;color:var(--blue)">₦4.2M</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ ADMISSIONS ═══════════════ -->
+      <div class="screen" id="screen-admissions">
+        <div class="section-header">
+          <div>
+            <div class="section-title">📋 Admissions Management</div>
+            <div class="section-sub">2024/2025 Session — 47 applications pending review</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm">⬇️ Export List</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('new-application-modal')">+ New Application</button>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <span>ℹ️</span>
+          <span>Admission portal is <strong>OPEN</strong> for 2024/2025 academic session. Deadline: <strong>15th February 2025</strong>. Applications received: <strong>2,847</strong></span>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(5,1fr)">
+          <script>
+            document.write([
+              ['2,847','Total Applications','#1A56DB'],
+              ['1,124','Shortlisted','#F59E0B'],
+              ['847','Admitted','#10B981'],
+              ['47','Pending Review','#8B5CF6'],
+              ['829','Declined','#EF4444']
+            ].map(([v,l,c])=>`
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center">
+                <div style="font-size:24px;font-weight:800;color:${c}">${v}</div>
+                <div style="font-size:11px;color:var(--text-2);margin-top:2px">${l}</div>
+              </div>
+            `).join(''));
+            </script>
+        </div>
+
+        <div class="card" style="margin-top:20px">
+          <div class="card-header">
+            <div class="card-title">Pending Applications</div>
+            <div style="display:flex;gap:8px">
+              <select class="form-select" style="width:180px;padding:6px 10px;font-size:12px">
+                <option>All Departments</option>
+                <option>Computer Engineering</option>
+                <option>Electrical Engineering</option>
+                <option>Business Administration</option>
+              </select>
+              <select class="form-select" style="width:140px;padding:6px 10px;font-size:12px">
+                <option>All Programmes</option>
+                <option>ND</option>
+                <option>HND</option>
+              </select>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="tbl tbl-clickable" id="admissions-table">
+              <thead>
+                <tr>
+                  <th>App. No.</th><th>Applicant Name</th><th>Programme</th><th>Dept.</th><th>JAMB Score</th><th>O'Level</th><th>Status</th><th>Date Applied</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admissions-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ ADMITTED ═══════════════ -->
+      <div class="screen" id="screen-admitted">
+        <div class="section-header">
+          <div><div class="section-title">🎓 Admitted Students</div><div class="section-sub">847 students admitted for 2024/2025 Session</div></div>
+          <button class="btn btn-primary btn-sm" onclick="showToast('📧 Admission letters sent to all admitted students!')">📧 Send All Offer Letters</button>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Newly Admitted Students</div></div>
+          <table class="tbl tbl-clickable">
+            <thead><tr><th>Matric No.</th><th>Name</th><th>Programme</th><th>Department</th><th>JAMB</th><th>Offer Status</th><th>Action</th></tr></thead>
+            <tbody id="admitted-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══════════════ STUDENTS ═══════════════ -->
+      <div class="screen" id="screen-students">
+        <div id="students-list-view">
+          <div class="section-header">
+            <div><div class="section-title">👥 Student Records</div><div class="section-sub">4,872 active students across all departments</div></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm">⬇️ Export</button>
+              <button class="btn btn-primary btn-sm" onclick="openModal('new-student-modal')">+ Add Student</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="search-bar" style="flex:1;max-width:320px">
+                <span>🔍</span>
+                <input type="text" placeholder="Search by name, matric no…" oninput="filterStudents(this.value)">
+              </div>
+              <select class="form-select" style="width:180px;padding:6px 10px;font-size:12px">
+                <option>All Departments</option>
+                <option>Computer Engineering</option>
+                <option>Electrical Engineering</option>
+                <option>Business Administration</option>
+              </select>
+              <select class="form-select" style="width:120px;padding:6px 10px;font-size:12px">
+                <option>All Levels</option>
+                <option>ND 1</option><option>ND 2</option><option>HND 1</option><option>HND 2</option>
+              </select>
+            </div>
+            <table class="tbl tbl-clickable">
+              <thead><tr><th>Matric No.</th><th>Name</th><th>Dept.</th><th>Level</th><th>CGPA</th><th>Fee Status</th><th>Status</th><th></th></tr></thead>
+              <tbody id="students-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- STUDENT DETAIL -->
+        <div id="student-detail-view" style="display:none">
+          <div class="back-btn" onclick="showStudentList()">← Back to Student Records</div>
+          <div class="detail-header" id="student-detail-header"></div>
+          <div class="tabs">
+            <div class="tab active" onclick="switchTab(this,'std-academic')">Academic Record</div>
+            <div class="tab" onclick="switchTab(this,'std-courses')">Course Registration</div>
+            <div class="tab" onclick="switchTab(this,'std-fees')">Fee History</div>
+            <div class="tab" onclick="switchTab(this,'std-docs')">Documents</div>
+          </div>
+          <div class="tab-content active" id="std-academic"></div>
+          <div class="tab-content" id="std-courses"></div>
+          <div class="tab-content" id="std-fees"></div>
+          <div class="tab-content" id="std-docs"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ COURSE REGISTRATION ═══════════════ -->
+      <div class="screen" id="screen-courses">
+        <div class="section-header">
+          <div><div class="section-title">📚 Course Registration</div><div class="section-sub">2024/2025 — First Semester | Registration period: Open</div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="showToast('📊 Registration report downloaded!')">📊 Download Report</button>
+            <button class="btn btn-danger btn-sm" onclick="showToast('⚠️ Registration portal closed for ND1')">🔒 Close Registration</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <script>
+            document.write([
+              ['3,241','Fully Registered','green'],
+              ['412','Partial','amber'],
+              ['1,219','Not Yet Registered','red'],
+              ['78%','Registration Rate','blue']
+            ].map(([v,l,c])=>`
+              <div class="stat-card ${c}">
+                <div class="stat-val">${v}</div>
+                <div class="stat-label">${l}</div>
+              </div>
+            `).join(''));
+            </script>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Registration Status by Department</div>
+            </div>
+            <table class="tbl">
+              <thead><tr><th>Department</th><th>Total</th><th>Registered</th><th>Pending</th><th>Rate</th></tr></thead>
+              <tbody>
+                <script>
+                  document.write([
+                    ['Computer Engineering',892,841,51],
+                    ['Electrical Engineering',756,710,46],
+                    ['Business Admin',641,590,51],
+                    ['Accountancy',589,530,59],
+                    ['Mechanical Eng.',498,380,118],
+                    ['Sci. Lab. Technology',412,190,222]
+                  ].map(([d,t,r,p])=>`
+                    <tr>
+                      <td style="font-weight:600">${d}</td>
+                      <td>${t}</td>
+                      <td style="color:var(--green);font-weight:600">${r}</td>
+                      <td style="color:var(--red);font-weight:600">${p}</td>
+                      <td>
+                        <div style="display:flex;align-items:center;gap:8px">
+                          <div class="progress-bar" style="width:80px">
+                            <div class="progress-fill" 
+                                 style="width:${(r/t*100).toFixed(0)}%;
+                                 background:${r/t>0.85?'#10B981':r/t>0.7?'#F59E0B':'#EF4444'}">
+                            </div>
+                          </div>
+                          <span style="font-size:12px;font-weight:600">
+                            ${(r/t*100).toFixed(0)}%
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  `).join(''));
+                  </script>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">📋 Students Pending Registration</div></div>
+            <div style="padding:0">
+              <script>
+                document.write([
+                  ['POL/ND1/2024/089','Emeka Chibuike','Computer Eng.','ND 1'],
+                  ['POL/ND1/2024/134','Grace Okonkwo','Accountancy','ND 1'],
+                  ['POL/HND1/2024/022','Suleiman Musa','Mech. Eng.','HND 1'],
+                  ['POL/ND2/2023/077','Ngozi Adaeze','Sci. Lab. Tech.','ND 2'],
+                  ['POL/ND1/2024/201','Tunde Bakare','Business Admin','ND 1']
+                ].map(([m,n,d,l])=>`
+                  <div style="display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid #F1F5F9;align-items:center">
+                    <div class="av av-sm" style="background:linear-gradient(135deg,#EF4444,#F59E0B)">
+                      ${n.split(' ').map(x=>x[0]).join('')}
+                    </div>
+                    <div style="flex:1">
+                      <div style="font-size:12px;font-weight:600">${n}</div>
+                      <div style="font-size:11px;color:var(--text-2)">
+                        ${m} · ${d}
+                      </div>
+                    </div>
+                    <span class="badge badge-amber">${l}</span>
+                    <button class="btn btn-primary btn-sm" onclick="showToast('📧 Reminder sent to ${n}!')">
+                      Remind
+                    </button>
+                  </div>
+                `).join(''));
+                </script>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ RESULTS ═══════════════ -->
+      <div class="screen" id="screen-results">
+        <div class="section-header">
+          <div><div class="section-title">📈 Results & Grades</div><div class="section-sub">2023/2024 Session — Second Semester | 8 courses pending Senate approval</div></div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('result-upload-modal')">+ Upload Results</button>
+        </div>
+
+        <div class="alert alert-warn">
+          <span>⚠️</span><span><strong>8 courses</strong> have results awaiting Senate ratification. <a href="#" onclick="showToast('Opening Senate approval workflow…');return false" style="color:var(--amber);font-weight:700">Review Now →</a></span>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab(this,'res-pending')">Pending Approval (8)</div>
+          <div class="tab" onclick="switchTab(this,'res-approved')">Approved Results</div>
+          <div class="tab" onclick="switchTab(this,'res-student')">Student Result Lookup</div>
+        </div>
+
+        <div class="tab-content active" id="res-pending">
+          <div class="card">
+            <table class="tbl">
+              <thead><tr><th>Course Code</th><th>Course Title</th><th>Dept.</th><th>Level</th><th>Students</th><th>Submitted By</th><th>Stage</th><th>Action</th></tr></thead>
+              <tbody>
+                <script>
+                  document.write([
+                    ['CET 302','Computer Networks','Computer Eng.','ND 2',87,'Dr. A. Adeyemi','HOD Review'],
+                    ['EEE 301','Circuit Theory','Electrical Eng.','ND 2',72,'Engr. M. Bello','Dean Review'],
+                    ['BAD 201','Business Law','Business Admin','ND 1',134,'Mr. C. Okafor','HOD Review'],
+                    ['ACC 301','Financial Accounting','Accountancy','ND 2',89,'Mrs. F. Ibrahim','Senate'],
+                    ['MEC 201','Engineering Drawing','Mech. Eng.','ND 1',61,'Engr. T. Salisu','HOD Review'],
+                    ['SLT 101','General Biology','Sci. Lab. Tech.','ND 1',78,'Dr. N. Obi','Lecturer Entry'],
+                    ['CET 401','Final Year Project','Computer Eng.','HND 2',45,'Dr. A. Adeyemi','Senate'],
+                    ['EEE 201','Electrical Machines','Electrical Eng.','ND 1',83,'Engr. K. Yusuf','Dean Review'],
+                  ].map(([code,title,dept,level,count,by,stage]) => {
+                  
+                    const stageColor =
+                      stage === 'Senate' ? 'badge-purple' :
+                      stage === 'Dean Review' ? 'badge-blue' :
+                      stage === 'HOD Review' ? 'badge-amber' :
+                      'badge-gray';
+                  
+                    return `
+                      <tr>
+                        <td>
+                          <span style="font-family:'JetBrains Mono';font-size:12px;font-weight:600;color:var(--blue)">
+                            ${code}
+                          </span>
+                        </td>
+                        <td style="font-weight:600">${title}</td>
+                        <td style="color:var(--text-2)">${dept}</td>
+                        <td><span class="badge badge-gray">${level}</span></td>
+                        <td style="font-weight:700">${count}</td>
+                        <td style="font-size:12px">${by}</td>
+                        <td><span class="badge ${stageColor}">${stage}</span></td>
+                        <td>
+                          <button class="btn btn-primary btn-sm"
+                            onclick="openResultApproval('${code}','${title}')">
+                            Review
+                          </button>
+                        </td>
+                      </tr>
+                    `;
+                  }).join(''));
+                  </script>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab-content" id="res-approved">
+          <div class="card">
+            <table class="tbl">
+              <thead><tr><th>Course Code</th><th>Course Title</th><th>Session</th><th>Students</th><th>Pass Rate</th><th>Avg Score</th><th>Approved By</th><th>Date</th></tr></thead>
+              <tbody>
+                ${[
+                  ['CET 201','Data Structures','2023/24 1st Sem',94,'89%',68.4,'Prof. O. Williams','Nov 2024'],
+                  ['EEE 101','Basic Electricity','2023/24 1st Sem',112,'92%',71.2,'Prof. O. Williams','Nov 2024'],
+                  ['BAD 101','Principles of Mgt','2023/24 1st Sem',143,'95%',73.8,'Prof. O. Williams','Nov 2024'],
+                  ['ACC 101','Intro to Accounting','2023/24 1st Sem',128,'88%',65.1,'Prof. O. Williams','Nov 2024'],
+                ].map(([code,title,sess,count,pass,avg,by,date])=>`
+                <tr>
+                  <td><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:600;color:var(--green)">${code}</span></td>
+                  <td style="font-weight:600">${title}</td>
+                  <td style="font-size:12px;color:var(--text-2)">${sess}</td>
+                  <td>${count}</td>
+                  <td><span class="badge badge-green">${pass}</span></td>
+                  <td style="font-weight:700">${avg}</td>
+                  <td style="font-size:12px">${by}</td>
+                  <td style="font-size:12px;color:var(--text-2)">${date}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab-content" id="res-student">
+          <div class="card" style="max-width:540px">
+            <div class="card-header"><div class="card-title">🔍 Student Result Lookup</div></div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Matriculation Number</label>
+                <div style="display:flex;gap:8px">
+                  <input class="form-input" value="POL/ND2/2023/041" id="result-matric">
+                  <button class="btn btn-primary" onclick="showStudentResult()">Search</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="student-result-view" style="display:none">
+            <div class="result-summary">
+              <div class="rs-item"><div class="rs-val">3.72</div><div class="rs-label">Current CGPA</div></div>
+              <div class="rs-item"><div class="rs-val" style="color:#34D399">Upper Credit</div><div class="rs-label">Class of Degree</div></div>
+              <div class="rs-item"><div class="rs-val">92</div><div class="rs-label">Units Earned</div></div>
+              <div class="rs-item"><div class="rs-val">4</div><div class="rs-label">Semesters Completed</div></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Amina Bello — POL/ND2/2023/041 | Electrical Engineering | ND 2</div>
+                <button class="btn btn-outline btn-sm" onclick="showToast('📄 Transcript generated!')">📄 Generate Transcript</button>
+              </div>
+              <table class="tbl">
+                <thead><tr><th>Course Code</th><th>Course Title</th><th>Units</th><th>CA</th><th>Exam</th><th>Total</th><th>Grade</th><th>GP</th></tr></thead>
+                <tbody>
+                  ${[
+                    ['EEE 201','Electrical Machines',3,27,62,89,'A',5],
+                    ['EEE 203','Electronics I',3,25,55,80,'A',5],
+                    ['EEE 205','Circuit Theory',3,22,50,72,'B',4],
+                    ['MTH 201','Engineering Maths II',2,18,44,62,'C',3],
+                    ['GNS 201','Communication Skills',2,28,55,83,'A',5],
+                    ['CET 201','Intro to Programming',2,24,48,72,'B',4],
+                  ].map(([code,title,units,ca,exam,total,grade,gp])=>`
+                  <tr>
+                    <td style="font-family:'JetBrains Mono';font-size:12px;font-weight:600;color:var(--blue)">${code}</td>
+                    <td>${title}</td>
+                    <td style="text-align:center">${units}</td>
+                    <td style="text-align:center">${ca}/30</td>
+                    <td style="text-align:center">${exam}/70</td>
+                    <td style="text-align:center;font-weight:700">${total}</td>
+                    <td style="text-align:center"><span class="grade-pill grade-${grade}">${grade}</span></td>
+                    <td style="text-align:center;font-weight:700;color:var(--blue)">${gp}.0</td>
+                  </tr>`).join('')}
+                </tbody>
+                <tfoot>
+                  <tr style="background:#F8FAFC">
+                    <td colspan="2" style="font-weight:700">Semester Total / GPA</td>
+                    <td style="text-align:center;font-weight:700">15</td>
+                    <td colspan="3"></td>
+                    <td></td>
+                    <td style="text-align:center;font-weight:800;color:var(--blue);font-size:15px">3.87</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ FEES ═══════════════ -->
+      <div class="screen" id="screen-fees">
+        <div class="section-header">
+          <div><div class="section-title">💳 Fees & Financial Management</div><div class="section-sub">2024/2025 Academic Session</div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="showToast('📊 Revenue report downloaded!')">📊 Export Report</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('fee-config-modal')">⚙️ Fee Schedule</button>
+          </div>
+        </div>
+
+        <div class="payment-summary">
+          <div class="pay-card">
+            <div class="pay-amount" style="color:var(--blue)">₦238.5M</div>
+            <div class="pay-label">Total Expected Revenue</div>
+            <div style="font-size:11px;color:var(--text-2);margin-top:4px">Based on 4,872 enrolled students</div>
+          </div>
+          <div class="pay-card">
+            <div class="pay-amount" style="color:var(--green)">₦186.0M</div>
+            <div class="pay-label">Total Collected (78%)</div>
+            <div style="font-size:11px;color:var(--green);margin-top:4px;font-weight:600">↑ +₦4.2M this week</div>
+          </div>
+          <div class="pay-card">
+            <div class="pay-amount" style="color:var(--red)">₦52.5M</div>
+            <div class="pay-label">Outstanding Balance</div>
+            <div style="font-size:11px;color:var(--red);margin-top:4px;font-weight:600">459 students unpaid</div>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab(this,'fees-transactions')">Recent Transactions</div>
+          <div class="tab" onclick="switchTab(this,'fees-schedule')">Fee Schedule</div>
+          <div class="tab" onclick="switchTab(this,'fees-outstanding')">Outstanding Fees</div>
+        </div>
+
+        <div class="tab-content active" id="fees-transactions">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Recent Payment Transactions</div>
+              <span class="badge badge-green">● Live</span>
+            </div>
+            <table class="tbl">
+              <thead><tr><th>Receipt No.</th><th>Student</th><th>Matric No.</th><th>Fee Type</th><th>Amount</th><th>Gateway</th><th>Date & Time</th><th>Status</th></tr></thead>
+              <tbody id="transactions-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab-content" id="fees-schedule">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Fee Schedule — 2024/2025</div></div>
+            <table class="tbl">
+              <thead><tr><th>Fee Type</th><th>ND 1 (New)</th><th>ND 2</th><th>HND 1 (New)</th><th>HND 2</th><th>Part-Time</th></tr></thead>
+              <tbody>
+                <script>
+                  document.write([
+                    ['School Fees','₦45,000','₦40,000','₦55,000','₦50,000','₦35,000'],
+                    ['Acceptance Fee','₦15,000','—','₦15,000','—','—'],
+                    ['Departmental Levy','₦5,000','₦5,000','₦6,000','₦6,000','₦4,000'],
+                    ['Student Union Dues','₦2,500','₦2,500','₦2,500','₦2,500','₦2,000'],
+                    ['Sports Levy','₦1,500','₦1,500','₦1,500','₦1,500','₦1,000'],
+                    ['Development Levy','₦3,000','₦3,000','₦3,500','₦3,500','₦2,500'],
+                    ['Library Fee','₦2,000','₦2,000','₦2,000','₦2,000','₦1,500'],
+                    ['TOTAL','₦74,000','₦54,000','₦85,500','₦65,500','₦46,000'],
+                  ].map(([type,...amounts],i)=>`
+                    <tr ${i===7 ? 'style="background:#F0FDF4;font-weight:800"' : ''}>
+                      <td style="font-weight:${i===7?800:600}">
+                        ${type}
+                      </td>
+                      ${amounts.map(a=>`
+                        <td style="
+                          text-align:right;
+                          font-weight:${i===7?800:400};
+                          color:${i===7?'var(--green)':'inherit'}
+                        ">
+                          ${a}
+                        </td>
+                      `).join('')}
+                    </tr>
+                  `).join(''));
+                  </script>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab-content" id="fees-outstanding">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Students with Outstanding Fees</div>
+              <button class="btn btn-outline btn-sm" onclick="showToast('📧 Reminders sent to 459 students!')">📧 Send All Reminders</button>
+            </div>
+            <table class="tbl">
+              <thead><tr><th>Matric No.</th><th>Name</th><th>Dept.</th><th>Level</th><th>Expected</th><th>Paid</th><th>Balance</th><th>Action</th></tr></thead>
+              <tbody>
+                ${[
+                  ['POL/ND1/2024/312','Chukwuemeka Nwosu','Computer Eng.','ND 1','₦74,000','₦0','₦74,000'],
+                  ['POL/HND1/2024/089','Rashida Abdullahi','Business Admin','HND 1','₦85,500','₦44,250','₦41,250'],
+                  ['POL/ND2/2023/156','Samuel Adeyinka','Accountancy','ND 2','₦54,000','₦27,000','₦27,000'],
+                  ['POL/ND1/2024/445','Blessing Eze','Sci. Lab. Tech.','ND 1','₦74,000','₦0','₦74,000'],
+                  ['POL/HND2/2023/034','Ibrahim Tanko','Mech. Eng.','HND 2','₦65,500','₦32,750','₦32,750'],
+                ].map(([matric,name,dept,level,exp,paid,bal])=>`
+                <tr>
+                  <td style="font-family:'JetBrains Mono';font-size:11px">${matric}</td>
+                  <td style="font-weight:600">${name}</td>
+                  <td style="font-size:12px;color:var(--text-2)">${dept}</td>
+                  <td><span class="badge badge-gray">${level}</span></td>
+                  <td>${exp}</td>
+                  <td style="color:var(--green);font-weight:600">${paid}</td>
+                  <td style="color:var(--red);font-weight:700">${bal}</td>
+                  <td style="display:flex;gap:6px">
+                    <button class="btn btn-primary btn-sm" onclick="showToast('📧 Reminder sent!')">Remind</button>
+                    <button class="btn btn-outline btn-sm" onclick="showToast('🔓 Manual clearance granted!')">Waive</button>
+                  </td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ STAFF ═══════════════ -->
+      <div class="screen" id="screen-staff">
+        <div class="section-header">
+          <div><div class="section-title">👤 Staff Management</div><div class="section-sub">248 active staff — Academic & Non-Academic</div></div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('new-staff-modal')">+ Add Staff</button>
+        </div>
+        <div class="stats-grid">
+          <script>
+          document.write([['178','Academic Staff','blue'],['70','Non-Academic Staff','purple'],['12','On Leave','amber'],['4','Vacancies','red']].map(([v,l,c])=>`
+          <div class="stat-card ${c}"><div class="stat-val">${v}</div><div class="stat-label">${l}</div></div>`).join(''));</script>
+          </div>
+        </div>
+        <div class="card">
+          <table class="tbl">
+            <thead><tr><th>Staff ID</th><th>Name</th><th>Department</th><th>Designation</th><th>Qualification</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+              <script>
+                document.write([
+                  ['STF-001','Prof. Oluwasegun Williams','Computer Engineering','Head of Department','PhD, MSc','Active'],
+                  ['STF-012','Dr. Adaeze Nwachukwu','Electrical Engineering','Senior Lecturer','PhD','Active'],
+                  ['STF-023','Engr. Musa Bello','Computer Engineering','Lecturer I','M.Eng','Active'],
+                  ['STF-034','Mrs. Fatima Ibrahim','Accountancy','Lecturer II','MBA, ACA','Active'],
+                  ['STF-045','Dr. Tunde Adesanya','Mechanical Engineering','Principal Lecturer','PhD','On Leave'],
+                  ['STF-056','Mr. Chinedu Okeke','Business Admin','Assistant Lecturer','MSc','Active'],
+                  ['STF-067','Dr. Ngozi Okonkwo','Sci. Lab. Technology','Senior Lecturer','PhD','Active'],
+                ].map(([id,name,dept,desig,qual,status]) => `
+                  <tr>
+                    <td style="font-family:'JetBrains Mono';font-size:11px;color:var(--blue)">
+                      ${id}
+                    </td>
+                    <td>
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <div class="av av-sm">
+                          ${name.split(' ')
+                            .filter((_,i)=>i>0)
+                            .map(x=>x[0])
+                            .join('')
+                            .slice(0,2)}
+                        </div>
+                        <span style="font-weight:600">${name}</span>
+                      </div>
+                    </td>
+                    <td style="font-size:12px;color:var(--text-2)">${dept}</td>
+                    <td>${desig}</td>
+                    <td style="font-size:12px">${qual}</td>
+                    <td>
+                      <span class="badge ${status==='Active'?'badge-green':'badge-amber'}">
+                        ${status}
+                      </span>
+                    </td>
+                    <td>
+                      <button class="btn btn-outline btn-sm"
+                        onclick="showToast('👤 Viewing ${name} profile…')">
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                `).join(''));
+                </script>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══════════════ REPORTS ═══════════════ -->
+      <div class="screen" id="screen-reports">
+        <div class="section-header">
+          <div><div class="section-title">📄 Reports & Analytics</div><div class="section-sub">Generate institutional reports for NUC, NBTE, and internal use</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+          <script>
+            document.write([
+              ['📊','Enrolment Report','Full breakdown by programme, department, gender, and state of origin','NBTE / Internal'],
+              ['💰','Revenue Report','Fee collection analysis, gateway breakdown, outstanding summary','Finance / Governing Council'],
+              ['📈','Academic Performance','CGPA distribution, pass rates, carryover analysis by department','Senate / Academic Board'],
+              ['👥','Staff Audit Report','Staff list, qualifications, IPPIS numbers, CONTISS grade levels','NBTE Accreditation'],
+              ['🎓','Graduation List','Graduating students with CGPA and class of degree','Convocation / Senate'],
+              ['📋','NBTE Statistical Digest','Annual statistical return in NBTE-prescribed format','NBTE Submission'],
+            ].map(([icon,title,desc,use])=>`
+              <div class="card"
+                   style="cursor:pointer;transition:all 0.2s"
+                   onmouseover="this.style.borderColor='var(--blue)'"
+                   onmouseout="this.style.borderColor='var(--border)'"
+                   onclick="showToast('📄 Generating ${title}…')">
+            
+                <div class="card-body" style="padding:20px">
+                  <div style="font-size:28px;margin-bottom:12px">${icon}</div>
+                  <div style="font-size:14px;font-weight:700;margin-bottom:6px">${title}</div>
+                  <div style="font-size:12px;color:var(--text-2);margin-bottom:12px;line-height:1.5">
+                    ${desc}
+                  </div>
+            
+                  <div style="display:flex;align-items:center;justify-content:space-between">
+                    <span class="badge badge-blue" style="font-size:10px">${use}</span>
+                    <button class="btn btn-primary btn-sm">Generate</button>
+                  </div>
+                </div>
+            
+              </div>
+            `).join(''));
+            </script>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-header">🔔 Notifications <span style="font-size:12px;color:var(--blue);font-weight:600;float:right;cursor:pointer" onclick="showToast('✓ All marked as read')">Mark all read</span></div>
+  <div class="notif-list">
+    ${[
+      [true,'New Application Received','Chinedu Okafor has submitted application for Computer Engineering ND. JAMB: 287','2 minutes ago'],
+      [true,'Result Approved','EEE 301 results ratified by Senate. 72 students affected.','15 minutes ago'],
+      [true,'Fee Payment','₦45,000 received from Amina Bello (POL/ND2/2023/041) via Paystack','1 hour ago'],
+      [false,'Registration Reminder','1,219 students have not yet registered for first semester courses','2 hours ago'],
+      [false,'Staff Leave Approved','Dr. T. Adesanya annual leave approved (Jan 15 – Feb 14)','3 hours ago'],
+      [false,'System Update','TIMS updated to v2.4.1. New: Bulk result upload, NBTE report template','Yesterday'],
+    ].map(([unread,title,msg,time])=>`
+    <div class="notif-item ${unread?'unread':''}">
+      <div class="notif-title">${title}</div>
+      <div class="notif-msg">${msg}</div>
+      <div class="notif-time">${time}</div>
+    </div>`).join('')}
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon">✅</span>
+  <span id="toast-msg">Action completed</span>
+</div>
+
+<!-- MODALS -->
+
+<!-- New Application Modal -->
+<div class="modal-overlay" id="new-application-modal" onclick="closeOnOverlay(event,this)">
+  <div class="modal">
+    <div class="modal-header">
+      <span style="font-size:20px">📋</span>
+      <div class="modal-title">New Student Application</div>
+      <button class="modal-close" onclick="closeModal('new-application-modal')">✕</button>
     </div>
-    <div class="footer-col">
-      <h4>Contact Us</h4>
-      <ul>
-        <li class="contact-item"><span class="contact-icon">📍</span>Amanda Malls Plaza, Elelenwo Road, Port Harcourt, Rivers State, Nigeria</li>
-        <li class="contact-item"><span class="contact-icon">📞</span>+234 916 643 4201</li>
-        <li class="contact-item"><span class="contact-icon">📧</span>contact@sortirng.com</li>
-        <li class="contact-item"><span class="contact-icon">🕘</span>Mon – Sun: 8:00 AM – 9:00 PM</li>
-        <li class="contact-item">
-          <span class="contact-icon">💬</span>
-          <a href="https://wa.me/2349166434201" target="_blank" style="color:var(--green-light);text-decoration:none;font-weight:600;">WhatsApp Orders</a>
-        </li>
-      </ul>
+    <div class="modal-body">
+      <div class="steps">
+        <div class="step done"><div class="step-num">✓</div><span>Personal Info</span></div>
+        <div class="step-line done"></div>
+        <div class="step active"><div class="step-num">2</div><span>Academic Details</span></div>
+        <div class="step-line"></div>
+        <div class="step"><div class="step-num">3</div><span>Documents</span></div>
+        <div class="step-line"></div>
+        <div class="step"><div class="step-num">4</div><span>Payment</span></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Surname</label><input class="form-input" value="Okafor"></div>
+        <div class="form-group"><label class="form-label">First Name</label><input class="form-input" value="Chinedu"></div>
+        <div class="form-group"><label class="form-label">Programme</label><select class="form-select"><option>ND (Full Time)</option><option>HND (Full Time)</option><option>ND (Part Time)</option></select></div>
+        <div class="form-group"><label class="form-label">Department</label><select class="form-select"><option>Computer Engineering</option><option>Electrical Engineering</option><option>Business Administration</option><option>Accountancy</option></select></div>
+        <div class="form-group"><label class="form-label">JAMB Reg. Number</label><input class="form-input" value="30521847AB"></div>
+        <div class="form-group"><label class="form-label">JAMB Score</label><input class="form-input" value="287" type="number"></div>
+        <div class="form-group"><label class="form-label">State of Origin</label><select class="form-select"><option>Anambra State</option><option>Lagos State</option><option>Ogun State</option></select></div>
+        <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" value="chinedu.okafor@gmail.com"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('new-application-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('new-application-modal');showToast('✅ Application submitted successfully! Ref: APP-2025-2848')">Submit Application</button>
     </div>
   </div>
-  <div class="footer-bottom">
-    <span>© 2026 Sortir. All rights reserved.</span>
-    <span>Made with ❤️ in Port Harcourt, Nigeria 🇳🇬</span>
+</div>
+
+<!-- Result Approval Modal -->
+<div class="modal-overlay" id="result-approval-modal" onclick="closeOnOverlay(event,this)">
+  <div class="modal" style="width:680px">
+    <div class="modal-header">
+      <span style="font-size:20px">📈</span>
+      <div>
+        <div class="modal-title" id="result-modal-title">Review Result — CET 302</div>
+        <div style="font-size:12px;color:var(--text-2)">Computer Engineering · ND 2 · 87 Students</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('result-approval-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+        ${[['87','Students','blue'],['78','Passed','green'],['9','Failed/Carryover','red'],['68.4','Avg Score','amber']].map(([v,l,c])=>`
+        <div style="background:var(--bg);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:20px;font-weight:800;color:var(--${c})">${v}</div>
+          <div style="font-size:11px;color:var(--text-2)">${l}</div>
+        </div>`).join('')}
+      </div>
+      <table class="tbl" style="margin-bottom:16px">
+        <thead><tr><th>Matric No.</th><th>Name</th><th>CA/30</th><th>Exam/70</th><th>Total</th><th>Grade</th></tr></thead>
+        <tbody>
+          ${[
+            ['POL/ND2/2023/041','Amina Bello',27,62,89,'A'],
+            ['POL/ND2/2023/055','Emeka Eze',24,54,78,'B'],
+            ['POL/ND2/2023/067','Halima Yusuf',21,49,70,'B'],
+            ['POL/ND2/2023/078','Tunde Oladele',18,38,56,'C'],
+            ['POL/ND2/2023/089','Ngozi Obi',12,25,37,'F'],
+          ].map(([m,n,ca,ex,tot,grade])=>`
+          <tr>
+            <td style="font-family:'JetBrains Mono';font-size:11px">${m}</td>
+            <td style="font-weight:600">${n}</td>
+            <td style="text-align:center">${ca}</td>
+            <td style="text-align:center">${ex}</td>
+            <td style="text-align:center;font-weight:700">${tot}</td>
+            <td style="text-align:center"><span class="grade-pill grade-${grade}">${grade}</span></td>
+          </tr>`).join('')}
+          <tr style="color:var(--text-2);font-style:italic;font-size:12px"><td colspan="6" style="text-align:center;padding:8px">+ 82 more students…</td></tr>
+        </tbody>
+      </table>
+      <div class="form-group">
+        <label class="form-label">HOD / Dean Comment</label>
+        <textarea class="form-textarea" placeholder="Add review comment…">Results reviewed and verified. Score distribution is consistent with examination records. Recommending for Senate ratification.</textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('result-approval-modal')">Close</button>
+      <button class="btn btn-danger btn-sm" onclick="closeModal('result-approval-modal');showToast('↩️ Results returned to lecturer for correction')">Return to Lecturer</button>
+      <button class="btn btn-success" onclick="closeModal('result-approval-modal');showToast('✅ Results approved and forwarded to Dean!')">Approve & Forward</button>
+    </div>
   </div>
-</footer>
+</div>
+
+<!-- Fee Config Modal -->
+<div class="modal-overlay" id="fee-config-modal" onclick="closeOnOverlay(event,this)">
+  <div class="modal">
+    <div class="modal-header">
+      <span style="font-size:20px">⚙️</span>
+      <div class="modal-title">Fee Schedule Configuration</div>
+      <button class="modal-close" onclick="closeModal('fee-config-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-warn"><span>⚠️</span><span>Changes to the fee schedule apply to all <strong>new transactions</strong> from this point. Existing receipts are not affected.</span></div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Academic Session</label><select class="form-select"><option>2024/2025</option><option>2025/2026</option></select></div>
+        <div class="form-group"><label class="form-label">Payment Gateway</label><select class="form-select"><option>Remita (TSA)</option><option>Paystack</option><option>Flutterwave</option></select></div>
+        <div class="form-group"><label class="form-label">ND1 School Fees (₦)</label><input class="form-input" value="45000" type="number"></div>
+        <div class="form-group"><label class="form-label">HND1 School Fees (₦)</label><input class="form-input" value="55000" type="number"></div>
+        <div class="form-group"><label class="form-label">Acceptance Fee (₦)</label><input class="form-input" value="15000" type="number"></div>
+        <div class="form-group"><label class="form-label">Late Registration Fee (₦)</label><input class="form-input" value="5000" type="number"></div>
+        <div class="form-group full"><label class="form-label">Payment Deadline</label><input class="form-input" type="date" value="2025-02-28"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('fee-config-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('fee-config-modal');showToast('✅ Fee schedule updated for 2024/2025 session!')">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Student Modal -->
+<div class="modal-overlay" id="new-student-modal" onclick="closeOnOverlay(event,this)">
+  <div class="modal">
+    <div class="modal-header">
+      <span style="font-size:20px">👤</span>
+      <div class="modal-title">Add New Student</div>
+      <button class="modal-close" onclick="closeModal('new-student-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Surname</label><input class="form-input" placeholder="e.g. Adeyemi"></div>
+        <div class="form-group"><label class="form-label">First Name</label><input class="form-input" placeholder="e.g. Taiwo"></div>
+        <div class="form-group"><label class="form-label">Middle Name</label><input class="form-input" placeholder="Optional"></div>
+        <div class="form-group"><label class="form-label">Date of Birth</label><input class="form-input" type="date"></div>
+        <div class="form-group"><label class="form-label">Gender</label><select class="form-select"><option>Male</option><option>Female</option></select></div>
+        <div class="form-group"><label class="form-label">State of Origin</label><select class="form-select"><option>Ogun State</option><option>Lagos State</option><option>Oyo State</option><option>Kano State</option><option>Anambra State</option></select></div>
+        <div class="form-group"><label class="form-label">Department</label><select class="form-select"><option>Computer Engineering</option><option>Electrical Engineering</option><option>Business Administration</option><option>Accountancy</option></select></div>
+        <div class="form-group"><label class="form-label">Programme Level</label><select class="form-select"><option>ND 1</option><option>ND 2</option><option>HND 1</option><option>HND 2</option></select></div>
+        <div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" placeholder="08012345678"></div>
+        <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" placeholder="student@email.com"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('new-student-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('new-student-modal');showToast('✅ Student added! Matric No: POL/ND1/2025/491 generated')">Save Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Staff Modal -->
+<div class="modal-overlay" id="new-staff-modal" onclick="closeOnOverlay(event,this)">
+  <div class="modal">
+    <div class="modal-header">
+      <span style="font-size:20px">👤</span>
+      <div class="modal-title">Add New Staff Member</div>
+      <button class="modal-close" onclick="closeModal('new-staff-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Title</label><select class="form-select"><option>Dr.</option><option>Prof.</option><option>Engr.</option><option>Mr.</option><option>Mrs.</option><option>Ms.</option></select></div>
+        <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" placeholder="Surname, First Name"></div>
+        <div class="form-group"><label class="form-label">Department</label><select class="form-select"><option>Computer Engineering</option><option>Electrical Engineering</option><option>Business Administration</option></select></div>
+        <div class="form-group"><label class="form-label">Designation</label><select class="form-select"><option>Lecturer II</option><option>Lecturer I</option><option>Senior Lecturer</option><option>Principal Lecturer</option><option>Head of Department</option></select></div>
+        <div class="form-group"><label class="form-label">Qualification</label><input class="form-input" placeholder="e.g. PhD, MSc, B.Eng"></div>
+        <div class="form-group"><label class="form-label">IPPIS Number</label><input class="form-input" placeholder="Federal staff only"></div>
+        <div class="form-group"><label class="form-label">Staff Type</label><select class="form-select"><option>Academic</option><option>Non-Academic</option></select></div>
+        <div class="form-group"><label class="form-label">CONTISS Grade Level</label><select class="form-select"><option>GL 07</option><option>GL 08</option><option>GL 09</option><option>GL 10</option><option>GL 12</option><option>GL 13</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('new-staff-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('new-staff-modal');showToast('✅ Staff member added! ID: STF-249 generated')">Add Staff</button>
+    </div>
+  </div>
+</div>
 
 <script>
-  // ── HAMBURGER ──
-  const hamburger = document.getElementById('hamburger');
-  const mobileNav = document.getElementById('mobileNav');
-  hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('open');
-    mobileNav.classList.toggle('open');
-  });
-  function closeMobileNav() {
-    hamburger.classList.remove('open');
-    mobileNav.classList.remove('open');
-  }
+// ── DATA ──
+const APPLICATIONS = [
+  {app:'APP-2025-2841',name:'Chinedu Okafor',prog:'ND',dept:'Computer Engineering',jamb:287,olevel:'5 Credits',status:'Pending',date:'Jan 15, 2025'},
+  {app:'APP-2025-2839',name:'Fatima Al-Hassan',prog:'ND',dept:'Electrical Engineering',jamb:261,olevel:'6 Credits',status:'Pending',date:'Jan 14, 2025'},
+  {app:'APP-2025-2836',name:'Oluwaseun Adeyemi',prog:'HND',dept:'Business Administration',jamb:245,olevel:'5 Credits',status:'Shortlisted',date:'Jan 13, 2025'},
+  {app:'APP-2025-2833',name:'Ngozi Okonkwo',prog:'ND',dept:'Accountancy',jamb:278,olevel:'7 Credits',status:'Pending',date:'Jan 12, 2025'},
+  {app:'APP-2025-2829',name:'Abdullahi Musa',prog:'ND',dept:'Mechanical Engineering',jamb:253,olevel:'5 Credits',status:'Pending',date:'Jan 11, 2025'},
+  {app:'APP-2025-2822',name:'Adaeze Nwosu',prog:'HND',dept:'Computer Engineering',jamb:271,olevel:'6 Credits',status:'Shortlisted',date:'Jan 10, 2025'},
+  {app:'APP-2025-2817',name:'Emeka Chibuike',prog:'ND',dept:'Science Lab. Technology',jamb:242,olevel:'5 Credits',status:'Pending',date:'Jan 9, 2025'},
+  {app:'APP-2025-2810',name:'Aisha Sule',prog:'ND',dept:'Business Administration',jamb:265,olevel:'6 Credits',status:'Pending',date:'Jan 8, 2025'},
+];
 
-  // ── MEAL REEL ──
-  const slides = document.querySelectorAll('.reel-slide');
-  const dots = document.querySelectorAll('.reel-dot');
-  const progressBar = document.getElementById('reelProgress');
-  let current = 0;
-  let timer = null;
+const ADMITTED = [
+  {matric:'POL/ND1/2025/001',name:'Amara Okonkwo',prog:'ND – Computer Eng.',dept:'Computer Engineering',jamb:291,status:'Accepted'},
+  {matric:'POL/ND1/2025/002',name:'Yusuf Ibrahim',prog:'ND – Electrical Eng.',dept:'Electrical Engineering',jamb:274,status:'Pending Acceptance'},
+  {matric:'POL/HND1/2025/001',name:'Chidinma Eze',prog:'HND – Business Admin',dept:'Business Administration',jamb:268,status:'Accepted'},
+  {matric:'POL/ND1/2025/003',name:'Sola Fashola',prog:'ND – Accountancy',dept:'Accountancy',jamb:259,status:'Accepted'},
+  {matric:'POL/ND1/2025/004',name:'Halima Garba',prog:'ND – Sci. Lab. Tech',dept:'Sci. Lab. Technology',jamb:247,status:'Pending Acceptance'},
+];
 
-  function goToSlide(index) {
-    slides[current].classList.remove('active');
-    dots[current].classList.remove('active');
-    current = (index + slides.length) % slides.length;
-    slides[current].classList.add('active');
-    dots[current].classList.add('active');
-    // Reset & animate progress bar
-    progressBar.style.transition = 'none';
-    progressBar.style.width = '0%';
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        progressBar.style.transition = 'width 2.5s linear';
-        progressBar.style.width = '100%';
-      });
-    });
-  }
+const STUDENTS = [
+  {matric:'POL/ND2/2023/041',name:'Amina Bello',dept:'Electrical Engineering',level:'ND 2',cgpa:3.72,fee:'Paid',status:'Active'},
+  {matric:'POL/ND1/2024/089',name:'Emeka Chibuike',dept:'Computer Engineering',level:'ND 1',cgpa:3.15,fee:'Partial',status:'Active'},
+  {matric:'POL/HND1/2024/022',name:'Suleiman Musa',dept:'Mechanical Engineering',level:'HND 1',cgpa:3.48,fee:'Paid',status:'Active'},
+  {matric:'POL/ND2/2023/077',name:'Ngozi Adaeze',dept:'Science Lab. Technology',level:'ND 2',cgpa:2.87,fee:'Unpaid',status:'Active'},
+  {matric:'POL/HND2/2022/015',name:'Tunde Bakare',dept:'Business Administration',level:'HND 2',cgpa:3.91,fee:'Paid',status:'Active'},
+  {matric:'POL/ND1/2024/134',name:'Grace Okonkwo',dept:'Accountancy',level:'ND 1',cgpa:3.62,fee:'Paid',status:'Active'},
+  {matric:'POL/ND2/2023/056',name:'Rashida Abdullahi',dept:'Computer Engineering',level:'ND 2',cgpa:2.54,fee:'Paid',status:'Probation'},
+  {matric:'POL/HND1/2024/067',name:'Obinna Nwachukwu',dept:'Electrical Engineering',level:'HND 1',cgpa:3.38,fee:'Partial',status:'Active'},
+  {matric:'POL/ND1/2024/201',name:'Khadijat Bello',dept:'Mechanical Engineering',level:'ND 1',cgpa:3.75,fee:'Paid',status:'Active'},
+  {matric:'POL/ND2/2023/089',name:'Seun Adeyemi',dept:'Science Lab. Technology',level:'ND 2',cgpa:3.21,fee:'Unpaid',status:'Active'},
+];
 
-  function startReel() {
-    // Kick off first progress bar
-    progressBar.style.transition = 'width 2.5s linear';
-    progressBar.style.width = '100%';
-    timer = setInterval(() => goToSlide(current + 1), 2500);
-  }
+const TRANSACTIONS = [
+  {ref:'RCP-2025-18441',student:'Amina Bello',matric:'POL/ND2/2023/041',type:'School Fees',amount:'₦40,000',gateway:'Remita',time:'Today 14:32'},
+  {ref:'RCP-2025-18440',student:'Tunde Bakare',matric:'POL/HND2/2022/015',type:'School Fees',amount:'₦65,500',gateway:'Paystack',time:'Today 13:18'},
+  {ref:'RCP-2025-18439',student:'Obinna Nwachukwu',matric:'POL/HND1/2024/067',type:'Departmental Levy',amount:'₦6,000',gateway:'Flutterwave',time:'Today 11:54'},
+  {ref:'RCP-2025-18438',student:'Grace Okonkwo',matric:'POL/ND1/2024/134',type:'Acceptance Fee',amount:'₦15,000',gateway:'Paystack',time:'Today 10:22'},
+  {ref:'RCP-2025-18437',student:'Khadijat Bello',matric:'POL/ND1/2024/201',type:'School Fees + Levies',amount:'₦74,000',gateway:'Remita',time:'Yesterday 16:41'},
+  {ref:'RCP-2025-18436',student:'Emeka Chibuike',matric:'POL/ND1/2024/089',type:'School Fees (Part)',amount:'₦22,500',gateway:'Paystack',time:'Yesterday 14:03'},
+];
 
-  // Dot clicks
-  dots.forEach((dot, i) => {
-    dot.addEventListener('click', () => {
-      clearInterval(timer);
-      goToSlide(i);
-      timer = setInterval(() => goToSlide(current + 1), 2500);
-    });
-  });
+let currentRole = 'Admin / Registry';
 
-  // ── LOGO UPLOAD ──
-  const logoUpload = document.getElementById('logoUpload');
-  const logoImg = document.getElementById('logoImg');
-  const logoPlaceholder = document.querySelector('.logo-placeholder');
-  const footerLogoImg = document.getElementById('footerLogoImg');
-  const footerLogoPlaceholder = document.getElementById('footerLogoPlaceholder');
+function setRole(el, role) {
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentRole = role;
+  const users = {'Admin / Registry': {id:'ADM-2024-001',name:'Adeyemi Olawale',role:'Registrar'},
+    'Lecturer': {id:'STF-023',name:'Engr. Musa Bello',role:'Lecturer — Computer Eng.'},
+    'Student': {id:'POL/ND2/2023/041',name:'Amina Bello',role:'Student — ND 2'},
+    'Bursary': {id:'BUR-001',name:'Mrs. Folake Abiodun',role:'Bursary Officer'}};
+  const u = users[role] || users['Admin / Registry'];
+  document.getElementById('login-user').value = u.id;
+}
 
-  logoUpload.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    // Nav logo
-    logoImg.src = url;
-    logoImg.style.display = 'block';
-    logoPlaceholder.style.display = 'none';
-    // Footer logo
-    footerLogoImg.src = url;
-    footerLogoImg.style.display = 'block';
-    if (footerLogoPlaceholder) footerLogoPlaceholder.style.display = 'none';
-  });
+function doLogin() {
+  const btn = document.querySelector('.login-btn');
+  btn.textContent = 'Signing in…';
+  btn.disabled = true;
+  setTimeout(() => {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').style.display = 'flex';
+    const roles = {'Admin / Registry': {name:'Adeyemi Olawale',role:'Registrar',av:'AO'},
+      'Lecturer': {name:'Engr. Musa Bello',role:'Lecturer',av:'MB'},
+      'Student': {name:'Amina Bello',role:'Student — ND 2',av:'AB'},
+      'Bursary': {name:'Mrs. Folake Abiodun',role:'Bursary Officer',av:'FA'}};
+    const u = roles[currentRole] || roles['Admin / Registry'];
+    document.querySelector('.user-name').textContent = u.name;
+    document.querySelector('.user-role').textContent = u.role;
+    document.querySelector('.user-avatar').textContent = u.av;
+    initData();
+    showToast('👋 Welcome back, ' + u.name.split(' ')[0] + '!');
+  }, 800);
+}
 
-  startReel();
+function logout() {
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('app').style.display = 'none';
+  document.querySelector('.login-btn').textContent = 'Sign In to TIMS →';
+  document.querySelector('.login-btn').disabled = false;
+}
+
+function initData() {
+  // Admissions
+  const ab = document.getElementById('admissions-body');
+  if(ab) ab.innerHTML = APPLICATIONS.map(a => `
+    <tr>
+      <td style="font-family:'JetBrains Mono';font-size:11px;color:var(--blue)">${a.app}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="av av-sm">${a.name.split(' ').map(x=>x[0]).join('').slice(0,2)}</div><span style="font-weight:600">${a.name}</span></div></td>
+      <td><span class="badge badge-blue">${a.prog}</span></td>
+      <td style="font-size:12px">${a.dept}</td>
+      <td style="font-weight:700;color:${a.jamb>=270?'var(--green)':a.jamb>=240?'var(--amber)':'var(--red)'}">${a.jamb}</td>
+      <td>${a.olevel}</td>
+      <td><span class="badge ${a.status==='Pending'?'badge-amber':a.status==='Shortlisted'?'badge-blue':'badge-green'}">${a.status}</span></td>
+      <td style="font-size:12px;color:var(--text-2)">${a.date}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-success btn-sm" onclick="admitStudent('${a.name}')">Admit</button>
+        <button class="btn btn-outline btn-sm" onclick="showToast('👁️ Viewing application for ${a.name}')">View</button>
+      </td>
+    </tr>`).join('');
+
+  // Admitted
+  const admb = document.getElementById('admitted-body');
+  if(admb) admb.innerHTML = ADMITTED.map(s => `
+    <tr>
+      <td style="font-family:'JetBrains Mono';font-size:11px;color:var(--green)">${s.matric}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="av av-sm" style="background:linear-gradient(135deg,#10B981,#06B6D4)">${s.name.split(' ').map(x=>x[0]).join('').slice(0,2)}</div><span style="font-weight:600">${s.name}</span></div></td>
+      <td style="font-size:12px">${s.prog}</td>
+      <td style="font-size:12px;color:var(--text-2)">${s.dept}</td>
+      <td style="font-weight:700">${s.jamb}</td>
+      <td><span class="badge ${s.status==='Accepted'?'badge-green':'badge-amber'}">${s.status}</span></td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-primary btn-sm" onclick="showToast('📧 Offer letter sent to ${s.name}!')">Send Offer</button>
+        <button class="btn btn-outline btn-sm" onclick="showToast('🆔 ID card generated for ${s.name}!')">ID Card</button>
+      </td>
+    </tr>`).join('');
+
+  // Students
+  renderStudents(STUDENTS);
+
+  // Transactions
+  const tb = document.getElementById('transactions-body');
+  if(tb) tb.innerHTML = TRANSACTIONS.map(t => `
+    <tr>
+      <td style="font-family:'JetBrains Mono';font-size:11px;color:var(--green);font-weight:600">${t.ref}</td>
+      <td style="font-weight:600">${t.student}</td>
+      <td style="font-family:'JetBrains Mono';font-size:11px">${t.matric}</td>
+      <td>${t.type}</td>
+      <td style="font-weight:800;color:var(--blue)">${t.amount}</td>
+      <td><span class="badge ${t.gateway==='Remita'?'badge-purple':t.gateway==='Paystack'?'badge-blue':'badge-cyan'}">${t.gateway}</span></td>
+      <td style="font-size:12px;color:var(--text-2)">${t.time}</td>
+      <td><span class="badge badge-green">✓ Confirmed</span></td>
+    </tr>`).join('');
+}
+
+function renderStudents(list) {
+  const sb = document.getElementById('students-body');
+  if(!sb) return;
+  sb.innerHTML = list.map(s => `
+    <tr onclick="viewStudent('${s.matric}')">
+      <td style="font-family:'JetBrains Mono';font-size:11px;color:var(--blue)">${s.matric}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="av av-sm">${s.name.split(' ').map(x=>x[0]).join('').slice(0,2)}</div><span style="font-weight:600">${s.name}</span></div></td>
+      <td style="font-size:12px">${s.dept}</td>
+      <td><span class="badge badge-gray">${s.level}</span></td>
+      <td style="font-weight:700;color:${s.cgpa>=3.5?'var(--green)':s.cgpa>=2.5?'var(--blue)':'var(--red)'}">${s.cgpa.toFixed(2)}</td>
+      <td><span class="badge ${s.fee==='Paid'?'badge-green':s.fee==='Partial'?'badge-amber':'badge-red'}">${s.fee}</span></td>
+      <td><span class="badge ${s.status==='Active'?'badge-green':s.status==='Probation'?'badge-amber':'badge-red'}">${s.status}</span></td>
+      <td><span style="color:var(--blue);font-size:12px;cursor:pointer;font-weight:600">View →</span></td>
+    </tr>`).join('');
+}
+
+function filterStudents(q) {
+  const filtered = STUDENTS.filter(s =>
+    s.name.toLowerCase().includes(q.toLowerCase()) ||
+    s.matric.toLowerCase().includes(q.toLowerCase()) ||
+    s.dept.toLowerCase().includes(q.toLowerCase())
+  );
+  renderStudents(filtered);
+}
+
+function viewStudent(matric) {
+  const s = STUDENTS.find(x => x.matric === matric) || STUDENTS[0];
+  document.getElementById('students-list-view').style.display = 'none';
+  document.getElementById('student-detail-view').style.display = 'block';
+
+  const cgpaClass = s.cgpa >= 3.5 ? 'Distinction / Upper Credit' : s.cgpa >= 3.0 ? 'Merit / Lower Credit' : 'Pass';
+  const hdStyle = `background:linear-gradient(135deg,${s.level.includes('HND')?'#7D3C98':'#1A56DB'},${s.level.includes('HND')?'#8B5CF6':'#06B6D4'})`;
+
+  document.getElementById('student-detail-header').innerHTML = `
+    <div style="width:64px;height:64px;border-radius:14px;${hdStyle};display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;flex-shrink:0">${s.name.split(' ').map(x=>x[0]).join('').slice(0,2)}</div>
+    <div style="flex:1">
+      <div style="font-size:22px;font-weight:800">${s.name}</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:2px">${s.matric} · ${s.dept} · ${s.level}</div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;font-size:11px;color:rgba(255,255,255,0.85)">${s.level}</span>
+        <span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;font-size:11px;color:rgba(255,255,255,0.85)">${cgpaClass}</span>
+        <span style="background:${s.fee==='Paid'?'rgba(16,185,129,0.3)':'rgba(239,68,68,0.3)'};border:1px solid rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;font-size:11px;color:rgba(255,255,255,0.9)">Fees: ${s.fee}</span>
+        <span style="background:${s.status==='Active'?'rgba(16,185,129,0.3)':'rgba(245,158,11,0.3)'};border:1px solid rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;font-size:11px;color:rgba(255,255,255,0.9)">${s.status}</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,0.3);color:#fff" onclick="showToast('📄 Transcript generated for ${s.name}!')">📄 Transcript</button>
+      <button class="btn btn-outline btn-sm" style="border-color:rgba(255,255,255,0.3);color:#fff" onclick="showToast('🆔 ID Card downloaded!')">🆔 ID Card</button>
+    </div>`;
+
+  // Biodata
+  document.getElementById('std-academic').innerHTML = `
+    <div class="card">
+      <div class="card-header"><div class="card-title">Student Information</div></div>
+      <div class="info-grid">
+        ${[['Matriculation No.',s.matric],['Full Name',s.name],['Department',s.dept],['Programme Level',s.level],['CGPA',s.cgpa.toFixed(2)],['Class of Award',cgpaClass],['Fee Status',s.fee],['Academic Status',s.status],['Admission Year','2023/2024']].map(([l,v])=>`
+        <div class="info-item"><div class="info-label">${l}</div><div class="info-val">${v}</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Semester GPA History</div></div>
+      <div class="card-body">
+        <div style="display:flex;gap:12px">
+          ${[['ND1 1st Sem','3.41'],['ND1 2nd Sem','3.68'],['ND2 1st Sem','3.87'],['ND2 2nd Sem','—']].map(([sem,gpa])=>`
+          <div style="flex:1;background:var(--bg);border-radius:8px;padding:14px;text-align:center">
+            <div style="font-size:20px;font-weight:800;color:${gpa==='—'?'var(--text-2)':'var(--blue)'}">${gpa}</div>
+            <div style="font-size:11px;color:var(--text-2);margin-top:4px">${sem}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('std-courses').innerHTML = `
+    <div class="card">
+      <div class="card-header"><div class="card-title">Registered Courses — 2024/2025 First Semester</div><span class="badge badge-green">✓ Registered</span></div>
+      <table class="tbl">
+        <thead><tr><th>Code</th><th>Course Title</th><th>Units</th><th>Type</th><th>Status</th></tr></thead>
+        <tbody>
+          ${[['EEE 301','Power Systems',3,'Compulsory','Registered'],['EEE 303','Control Systems',3,'Compulsory','Registered'],['EEE 305','Telecommunications',3,'Compulsory','Registered'],['MTH 301','Engineering Maths III',2,'Compulsory','Registered'],['GNS 301','Entrepreneurship',2,'Compulsory','Registered'],['EEE 201','Electrical Machines (Carryover)',3,'Carryover','Registered']].map(([code,title,units,type,stat])=>`
+          <tr>
+            <td style="font-family:'JetBrains Mono';font-size:12px;font-weight:600;color:var(--blue)">${code}</td>
+            <td>${title}</td>
+            <td style="text-align:center">${units}</td>
+            <td><span class="badge ${type==='Carryover'?'badge-amber':'badge-blue'}">${type}</span></td>
+            <td><span class="badge badge-green">${stat}</span></td>
+          </tr>`).join('')}
+          <tr style="background:#F8FAFC;font-weight:700">
+            <td colspan="2">Total Units</td>
+            <td style="text-align:center">16</td>
+            <td colspan="2" style="color:var(--green)">✓ Within allowable range (15–24 units)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+
+  document.getElementById('std-fees').innerHTML = `
+    <div class="card">
+      <div class="card-header"><div class="card-title">Fee Payment History</div></div>
+      <table class="tbl">
+        <thead><tr><th>Receipt No.</th><th>Fee Type</th><th>Amount</th><th>Date</th><th>Gateway</th><th>Status</th></tr></thead>
+        <tbody>
+          ${[['RCP-2025-18441','School Fees (2024/25)','₦40,000','Jan 15, 2025','Remita','Confirmed'],['RCP-2024-14221','Departmental Levy','₦5,000','Sep 12, 2024','Paystack','Confirmed'],['RCP-2024-11082','School Fees (2023/24)','₦38,000','Sep 5, 2024','Remita','Confirmed'],['RCP-2024-10331','Acceptance Fee','₦15,000','Aug 20, 2024','Paystack','Confirmed']].map(([ref,type,amt,date,gw,stat])=>`
+          <tr>
+            <td style="font-family:'JetBrains Mono';font-size:11px;color:var(--green)">${ref}</td>
+            <td>${type}</td><td style="font-weight:700">${amt}</td>
+            <td style="font-size:12px">${date}</td>
+            <td><span class="badge ${gw==='Remita'?'badge-purple':'badge-blue'}">${gw}</span></td>
+            <td><span class="badge badge-green">${stat}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  document.getElementById('std-docs').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      ${[['📋','Admission Letter','Generated Aug 2024','Download'],['🆔','Student ID Card','Generated Sep 2024','Download'],['📄','Course Reg. Slip','2024/25 1st Sem','Download'],['📈','Result Slip','2023/24 2nd Sem','Download'],['🏛️','Attestation Letter','Request Only','Request'],['📜','Statement of Result','Request Only','Request']].map(([icon,title,sub,action])=>`
+      <div class="card" style="cursor:pointer" onclick="showToast('${action==='Download'?'⬇️ Downloading':'📧 Request submitted for'} ${title}!')">
+        <div class="card-body" style="text-align:center;padding:16px">
+          <div style="font-size:28px;margin-bottom:8px">${icon}</div>
+          <div style="font-size:13px;font-weight:700">${title}</div>
+          <div style="font-size:11px;color:var(--text-2);margin:4px 0 10px">${sub}</div>
+          <button class="btn ${action==='Download'?'btn-primary':'btn-outline'} btn-sm" style="width:100%">${action==='Download'?'⬇️ Download':'📧 Request'}</button>
+        </div>
+      </div>`).join('')}
+    </div>`;
+}
+
+function showStudentList() {
+  document.getElementById('students-list-view').style.display = 'block';
+  document.getElementById('student-detail-view').style.display = 'none';
+}
+
+function admitStudent(name) {
+  closeModal('new-application-modal');
+  showToast(`✅ ${name} has been admitted! Offer letter queued for delivery.`);
+}
+
+function openResultApproval(code, title) {
+  document.getElementById('result-modal-title').textContent = `Review Result — ${code}: ${title}`;
+  openModal('result-approval-modal');
+}
+
+function showStudentResult() {
+  document.getElementById('student-result-view').style.display = 'block';
+  showToast('✅ Results found for POL/ND2/2023/041');
+}
+
+// ── NAVIGATION ──
+function getNavItem(screen) {
+  return document.querySelector(`[onclick="nav('${screen}',this)"]`);
+}
+
+function nav(screen, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const s = document.getElementById('screen-' + screen);
+  if(s) s.classList.add('active');
+  if(el) el.classList.add('active');
+
+  const titles = {dashboard:'Dashboard',admissions:'Admissions Management',admitted:'Admitted Students',
+    students:'Student Records',courses:'Course Registration',results:'Results & Grades',
+    fees:'Fees & Payments',staff:'Staff Management',reports:'Reports & Analytics'};
+  document.getElementById('breadcrumb').innerHTML = `<strong>${titles[screen]||screen}</strong>`;
+
+  // Close notif panel
+  document.getElementById('notif-panel').classList.remove('open');
+}
+
+function switchTab(el, contentId) {
+  const parent = el.closest('.tabs').parentElement;
+  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const content = parent.querySelector('#' + contentId) || document.getElementById(contentId);
+  if(content) content.classList.add('active');
+}
+
+// ── MODALS ──
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+function closeOnOverlay(e, overlay) {
+  if(e.target === overlay) closeModal(overlay.id);
+}
+
+// ── NOTIFICATIONS ──
+function toggleNotif() {
+  document.getElementById('notif-panel').classList.toggle('open');
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  const icon = msg.startsWith('✅')||msg.startsWith('✓')?'✅':msg.startsWith('❌')||msg.startsWith('⚠️')?'⚠️':'ℹ️';
+  document.getElementById('toast-msg').textContent = msg.replace(/^[✅⚠️ℹ️📧📄📊⬇️↩️🔓🆔👁️👋]/,'').trim();
+  t.querySelector('.toast-icon').textContent = msg.match(/^[^\w\s]/)?msg[0]:'✅';
+  clearTimeout(toastTimer);
+  t.classList.add('show');
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {});
 </script>
 </body>
 </html>
