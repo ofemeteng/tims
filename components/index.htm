@@ -1196,7 +1196,8 @@ html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg);
               <table class="tbl">
                 <thead><tr><th>Course Code</th><th>Course Title</th><th>Units</th><th>CA</th><th>Exam</th><th>Total</th><th>Grade</th><th>GP</th></tr></thead>
                 <tbody>
-                  ${[
+                  <script>
+                  document.write([
                     ['EEE 201','Electrical Machines',3,27,62,89,'A',5],
                     ['EEE 203','Electronics I',3,25,55,80,'A',5],
                     ['EEE 205','Circuit Theory',3,22,50,72,'B',4],
@@ -1213,7 +1214,7 @@ html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg);
                     <td style="text-align:center;font-weight:700">${total}</td>
                     <td style="text-align:center"><span class="grade-pill grade-${grade}">${grade}</span></td>
                     <td style="text-align:center;font-weight:700;color:var(--blue)">${gp}.0</td>
-                  </tr>`).join('')}
+                  </tr>`).join(''));</script>
                 </tbody>
                 <tfoot>
                   <tr style="background:#F8FAFC">
@@ -1364,7 +1365,7 @@ html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg);
           <div class="stat-card ${c}"><div class="stat-val">${v}</div><div class="stat-label">${l}</div></div>`).join(''));</script>
           </div>
         </div>
-        <div class="card">
+        <!-- <div class="card">
           <table class="tbl">
             <thead><tr><th>Staff ID</th><th>Name</th><th>Department</th><th>Designation</th><th>Qualification</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
@@ -1413,7 +1414,7 @@ html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg);
                 </script>
             </tbody>
           </table>
-        </div>
+        </div> -->
       </div>
 
       <!-- ═══════════════ REPORTS ═══════════════ -->
