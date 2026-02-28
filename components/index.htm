@@ -1146,7 +1146,8 @@ html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg);
             <table class="tbl">
               <thead><tr><th>Course Code</th><th>Course Title</th><th>Session</th><th>Students</th><th>Pass Rate</th><th>Avg Score</th><th>Approved By</th><th>Date</th></tr></thead>
               <tbody>
-                ${[
+                <script>
+                document.write([
                   ['CET 201','Data Structures','2023/24 1st Sem',94,'89%',68.4,'Prof. O. Williams','Nov 2024'],
                   ['EEE 101','Basic Electricity','2023/24 1st Sem',112,'92%',71.2,'Prof. O. Williams','Nov 2024'],
                   ['BAD 101','Principles of Mgt','2023/24 1st Sem',143,'95%',73.8,'Prof. O. Williams','Nov 2024'],
@@ -1161,7 +1162,7 @@ html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg);
                   <td style="font-weight:700">${avg}</td>
                   <td style="font-size:12px">${by}</td>
                   <td style="font-size:12px;color:var(--text-2)">${date}</td>
-                </tr>`).join('')}
+                </tr>`).join(''));</script>
               </tbody>
             </table>
           </div>
@@ -1323,7 +1324,8 @@ html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg);
             <table class="tbl">
               <thead><tr><th>Matric No.</th><th>Name</th><th>Dept.</th><th>Level</th><th>Expected</th><th>Paid</th><th>Balance</th><th>Action</th></tr></thead>
               <tbody>
-                ${[
+                <script>
+                document.write([
                   ['POL/ND1/2024/312','Chukwuemeka Nwosu','Computer Eng.','ND 1','₦74,000','₦0','₦74,000'],
                   ['POL/HND1/2024/089','Rashida Abdullahi','Business Admin','HND 1','₦85,500','₦44,250','₦41,250'],
                   ['POL/ND2/2023/156','Samuel Adeyinka','Accountancy','ND 2','₦54,000','₦27,000','₦27,000'],
@@ -1342,7 +1344,8 @@ html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg);
                     <button class="btn btn-primary btn-sm" onclick="showToast('📧 Reminder sent!')">Remind</button>
                     <button class="btn btn-outline btn-sm" onclick="showToast('🔓 Manual clearance granted!')">Waive</button>
                   </td>
-                </tr>`).join('')}
+                </tr>`).join(''));
+              </script>
               </tbody>
             </table>
           </div>
@@ -1420,6 +1423,33 @@ html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg);
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
           <script>
+          document.write([
+            ['📊','Enrolment Report','Full breakdown by programme, department, gender, and state of origin','NBTE / Internal'],
+            ['💰','Revenue Report','Fee collection analysis, gateway breakdown, outstanding summary','Finance / Governing Council'],
+            ['📈','Academic Performance','CGPA distribution, pass rates, carryover analysis by department','Senate / Academic Board'],
+            ['👥','Staff Audit Report','Staff list, qualifications, IPPIS numbers, CONTISS grade levels','NBTE Accreditation'],
+            ['🎓','Graduation List','Graduating students with CGPA and class of degree','Convocation / Senate'],
+            ['📋','NBTE Statistical Digest','Annual statistical return in NBTE-prescribed format','NBTE Submission'],
+          ].map(([icon,title,desc,use])=>`
+          <div class="card" style="cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border)'" onclick="showToast('📄 Generating ${title}…')">
+            <div class="card-body" style="padding:20px">
+              <div style="font-size:28px;margin-bottom:12px">${icon}</div>
+              <div style="font-size:14px;font-weight:700;margin-bottom:6px">${title}</div>
+              <div style="font-size:12px;color:var(--text-2);margin-bottom:12px;line-height:1.5">${desc}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span class="badge badge-blue" style="font-size:10px">${use}</span>
+                <button class="btn btn-primary btn-sm">Generate</button>
+              </div>
+            </div>
+          </div>`).join(''));</script>
+        </div>
+      </div>
+      <!-- <div class="screen" id="screen-reports">
+        <div class="section-header">
+          <div><div class="section-title">📄 Reports & Analytics</div><div class="section-sub">Generate institutional reports for NUC, NBTE, and internal use</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+          <script>
             document.write([
               ['📊','Enrolment Report','Full breakdown by programme, department, gender, and state of origin','NBTE / Internal'],
               ['💰','Revenue Report','Fee collection analysis, gateway breakdown, outstanding summary','Finance / Governing Council'],
@@ -1451,7 +1481,7 @@ html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg);
             `).join(''));
             </script>
         </div>
-      </div>
+      </div> -->
 
     </div><!-- /content -->
   </div><!-- /main -->
@@ -1534,16 +1564,18 @@ html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg);
     </div>
     <div class="modal-body">
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
-        ${[['87','Students','blue'],['78','Passed','green'],['9','Failed/Carryover','red'],['68.4','Avg Score','amber']].map(([v,l,c])=>`
+        <script>
+        document.write([['87','Students','blue'],['78','Passed','green'],['9','Failed/Carryover','red'],['68.4','Avg Score','amber']].map(([v,l,c])=>`
         <div style="background:var(--bg);border-radius:8px;padding:12px;text-align:center">
           <div style="font-size:20px;font-weight:800;color:var(--${c})">${v}</div>
           <div style="font-size:11px;color:var(--text-2)">${l}</div>
-        </div>`).join('')}
+        </div>`).join(''));</script>
       </div>
       <table class="tbl" style="margin-bottom:16px">
         <thead><tr><th>Matric No.</th><th>Name</th><th>CA/30</th><th>Exam/70</th><th>Total</th><th>Grade</th></tr></thead>
         <tbody>
-          ${[
+          <script>
+          document.write([
             ['POL/ND2/2023/041','Amina Bello',27,62,89,'A'],
             ['POL/ND2/2023/055','Emeka Eze',24,54,78,'B'],
             ['POL/ND2/2023/067','Halima Yusuf',21,49,70,'B'],
@@ -1557,7 +1589,7 @@ html, body { height:100%; font-family:'Outfit',sans-serif; background:var(--bg);
             <td style="text-align:center">${ex}</td>
             <td style="text-align:center;font-weight:700">${tot}</td>
             <td style="text-align:center"><span class="grade-pill grade-${grade}">${grade}</span></td>
-          </tr>`).join('')}
+          </tr>`).join(''));</script>
           <tr style="color:var(--text-2);font-style:italic;font-size:12px"><td colspan="6" style="text-align:center;padding:8px">+ 82 more students…</td></tr>
         </tbody>
       </table>
